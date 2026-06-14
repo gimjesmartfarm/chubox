@@ -75,7 +75,8 @@
           document.getElementById("price").textContent = "정보 없음";
         } else {
           document.getElementById("price").textContent = won(d.maxPrice);
-          const meta = [d.marketName ? d.marketName + "공판장" : "", d.unit ? "1" + d.unit + " 기준" : ""]
+          const unitLabel = (d.unitQty ? d.unitQty : "") + (d.unit || "");
+          const meta = [d.marketName ? d.marketName + "공판장" : "", unitLabel ? unitLabel + " 기준" : ""]
             .filter(Boolean).join(" · ");
           document.getElementById("meta").textContent = meta;
         }

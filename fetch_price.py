@@ -69,11 +69,13 @@ def main():
         result = {
             "date": date_str,
             "maxPrice": int(float(top["scsbd_prc"])),  # '.' 이하 버림
-            "unit": top.get("unit_nm", ""),
+            "unitQty": int(float(top.get("unit_qty") or 0)),  # 단위물량 (예: 4)
+            "unit": top.get("unit_nm", ""),                   # 단위명 (예: kg)
             "marketName": top.get("whsl_mrkt_nm", ""),
             "itemName": top.get("corp_gds_item_nm", ""),
             "variety": top.get("corp_gds_vrty_nm", ""),
-            "updatedAt": now_iso,
+            "auctionAt": top.get("scsbd_dt", ""),  # 최고가 항목의 낙찰일시
+            "updatedAt": now_iso,                  # 데이터를 가져온(스크립트 실행) 시각
         }
         break
 
