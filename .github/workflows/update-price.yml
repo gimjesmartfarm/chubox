@@ -1,0 +1,33 @@
+name: Update chive price
+
+on:
+  schedule:
+    # UTC 기준. 23:00 UTC = 한국시간 익일 08:00 (경매 마감/갱신 이후)
+    - cron: "0 23 * * *"
+  workflow_dispatch: {}   # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch price
+        env:
+          KAT_SERVICE_KEY: ${{ secrets.KAT_SERVICE_KEY }}
+        run: python fetch_price.py
+
+      - name: Commit price.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add price.json
+          git diff --quiet --cached || git commit -m "Update price ($(TZ=Asia/Seoul date +%F))"
+          git push
