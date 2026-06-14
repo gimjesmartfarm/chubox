@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>스마트팜 부추</title>
+  <style>
+    :root { --green: #2e7d32; --bg: #f4f7f2; --card: #ffffff; --muted: #6b7280; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: #1f2937;
+      -webkit-text-size-adjust: 100%;
+    }
+    .wrap { max-width: 480px; margin: 0 auto; padding: 24px 18px 60px; }
+
+    /* 상단 가격 카드 */
+    .price-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 28px 20px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .price-date { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+    .price-label { font-size: 16px; color: var(--green); font-weight: 600; }
+    .price-value {
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--green);
+      margin: 6px 0 4px;
+      letter-spacing: -1px;
+    }
+    .price-meta { font-size: 13px; color: var(--muted); }
+    .price-updated { font-size: 12px; color: #9ca3af; margin-top: 14px; }
+
+    /* 홍보 영역 (디자인은 추후 보강) */
+    .hero { text-align: center; margin: 32px 0 8px; }
+    .hero h1 { font-size: 22px; margin: 0 0 6px; }
+    .hero p { color: var(--muted); margin: 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="price-card">
+      <div class="price-date" id="date">불러오는 중…</div>
+      <div class="price-label">도매시장 최고가</div>
+      <div class="price-value" id="price">—</div>
+      <div class="price-meta" id="meta"></div>
+      <div class="price-updated" id="updated"></div>
+    </div>
+
+    <div class="hero">
+      <h1>스마트팜 부추</h1>
+      <p>신선한 부추를 합리적인 가격에 직거래합니다.</p>
+    </div>
+  </div>
+
+  <script>
+    function won(n) { return n.toLocaleString("ko-KR") + "원"; }
+
+    async function loadPrice() {
+      try {
+        // 캐시 방지를 위해 타임스탬프 쿼리 추가
+        const res = await fetch("price.json?t=" + Date.now());
+        if (!res.ok) throw new Error("not ok");
+        const d = await res.json();
+
+        document.getElementById("date").textContent = d.date + " 기준";
+
+        if (d.maxPrice == null) {
+          document.getElementById("price").textContent = "정보 없음";
+        } else {
+          document.getElementById("price").textContent = won(d.maxPrice);
+          const meta = [d.marketName ? d.marketName + "공판장" : "", d.unit ? "1" + d.unit + " 기준" : ""]
+            .filter(Boolean).join(" · ");
+          document.getElementById("meta").textContent = meta;
+        }
+        if (d.updatedAt) {
+          const t = new Date(d.updatedAt);
+          document.getElementById("updated").textContent =
+            "업데이트: " + t.toLocaleString("ko-KR");
+        }
+      } catch (e) {
+        document.getElementById("date").textContent = "";
+        document.getElementById("price").textContent = "불러오기 실패";
+      }
+    }
+
+    loadPrice();
+  </script>
+</body>
+</html>
