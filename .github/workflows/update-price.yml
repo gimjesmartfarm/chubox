@@ -2,10 +2,8 @@ name: Update chive price
 
 on:
   schedule:
-    # 22:57 UTC = 한국시간 익일 07:57 (경매 갱신 직후)
-    # 정각(:00)은 혼잡해 지연/누락이 잦으므로 일부러 분을 어긋나게 둠
-    # 단, GitHub 예약 실행은 정시를 보장하지 않고 지연/누락될 수 있음
-    - cron: "57 22 * * *"
+    # 매시 30분
+    - cron: "30 * * * *"
   workflow_dispatch: {}   # 수동 실행 버튼
 
 permissions:
