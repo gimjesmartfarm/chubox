@@ -97,7 +97,8 @@
     .price-line { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; }
     .price-line .pk { font-size: 15px; color: var(--text-2); }
     .price-line b { font-size: 26px; font-weight: 800; color: var(--green); }
-    .price-meta { margin-top: 12px; font-size: 13px; color: var(--text-2); text-align: center; }
+    .price-meta { margin-top: 12px; font-size: 13px; color: var(--text-2); text-align: center; line-height: 1.55; }
+    .price-meta .meta-date { color: #9ca3af; font-size: 12px; }
 
     .hero-shot {
       max-width: 1100px; margin: 48px auto 0; overflow: hidden;
@@ -344,7 +345,9 @@
           const { p4, p2 } = todayPrices(d.maxPrice);
           document.getElementById("price4").textContent = won(p4);
           document.getElementById("price2").textContent = won(p2);
-          document.getElementById("priceMeta").textContent = d.date + " 기준";
+          document.getElementById("priceMeta").innerHTML =
+            "도매시장 시세를 반영해 매일 새로 책정해요<br>" +
+            "<span class='meta-date'>" + d.date + " 도매가 기준</span>";
           document.getElementById("priceBox").style.display = "inline-block";
         }
       } catch(e){ /* 가격 정보 없으면 조용히 숨김 */ }
