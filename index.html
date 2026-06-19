@@ -159,6 +159,61 @@
       background: var(--bg-soft);
     }
 
+    /* ---------- 품종 드래그/스와이프 캐러셀 ---------- */
+    .variety-hint {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      color: var(--text-2); font-size: 14px; font-weight: 500; margin-top: 30px;
+    }
+    .variety-hint .ar { display: inline-block; }
+    .variety-hint .ar.l { animation: nudgeL 1.4s infinite; }
+    .variety-hint .ar.r { animation: nudgeR 1.4s infinite; }
+    @keyframes nudgeL { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-5px)} }
+    @keyframes nudgeR { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
+
+    .variety-card {
+      position: relative; width: 100%; aspect-ratio: 3 / 2;
+      margin-top: 16px; border-radius: 22px; overflow: hidden;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.10);
+    }
+    .variety-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+    .variety-scrim {
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(0,0,0,0.62), rgba(0,0,0,0.30) 50%, rgba(0,0,0,0) 82%);
+    }
+    .variety-track {
+      position: absolute; inset: 0; display: flex;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      cursor: grab; user-select: none;
+    }
+    .variety-track::-webkit-scrollbar { display: none; }
+    .variety-track.dragging { cursor: grabbing; }
+    .variety-panel {
+      flex: 0 0 100%; height: 100%; scroll-snap-align: center;
+      display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
+      padding: 30px 34px; color: #fff; text-align: left;
+      text-shadow: 0 1px 18px rgba(0,0,0,0.35);
+    }
+    .variety-panel h3 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .variety-panel p { font-size: 15px; line-height: 1.62; color: rgba(255,255,255,0.92); }
+
+    .variety-dots { display: flex; gap: 8px; justify-content: center; margin-top: 18px; }
+    .variety-dots .d {
+      width: 8px; height: 8px; border-radius: 999px; background: var(--line);
+      transition: width .3s ease, background .3s ease;
+    }
+    .variety-dots .d.on { width: 22px; background: var(--green); }
+
+    @media (max-width: 734px) {
+      .variety-card { border-radius: 16px; }
+      .variety-panel { padding: 22px 22px; }
+      .variety-panel h3 { font-size: 21px; }
+      .variety-panel p { font-size: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .variety-hint .ar { animation: none; }
+    }
+
     /* ---------- 스크롤 등장 모션 ---------- */
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
     .reveal.in { opacity: 1; transform: none; }
@@ -214,8 +269,31 @@
     <div class="inner">
       <p class="eyebrow reveal">품종</p>
       <h2 class="reveal">그린 탑 플러스</h2>
-      <p class="lead reveal">잎이 두껍고 부드러워,<br />소비자가 선호하는 식감을 가진 품종입니다.</p>
-      <div class="shot reveal"><img src="images/macro.jpg" alt="그린 탑 플러스 부추 잎 클로즈업" loading="lazy" /></div>
+
+      <div class="reveal">
+        <div class="variety-hint">
+          <span class="ar l">←</span><span>옆으로 쓸어보세요</span><span class="ar r">→</span>
+        </div>
+        <div class="variety-card">
+          <img class="variety-bg" src="images/macro.jpg" alt="그린 탑 플러스 부추 잎 클로즈업" draggable="false" />
+          <div class="variety-scrim"></div>
+          <div class="variety-track" id="vTrack">
+            <article class="variety-panel">
+              <h3>아삭하고 연한 식감</h3>
+              <p>잎이 두껍고 탄력 있어 씹는 맛이 좋으면서도, 섬유질이 질기지 않고 연해 요리의 맛을 더해줍니다.</p>
+            </article>
+            <article class="variety-panel">
+              <h3>다듬기 편한 곧은 형태</h3>
+              <p>하늘을 향해 곧게 자라는 품종이라 진흙이나 이물질이 적고, 손질 시 버려지는 부분 없이 깔끔합니다.</p>
+            </article>
+            <article class="variety-panel">
+              <h3>오래가는 신선함</h3>
+              <p>일반 부추보다 잎이 두툼해 수분을 잘 머금고 있어, 구매 후 냉장 보관 시에도 쉽게 물러지지 않고 신선함이 오래 유지됩니다.</p>
+            </article>
+          </div>
+        </div>
+        <div class="variety-dots" id="vDots"></div>
+      </div>
     </div>
   </section>
 
@@ -340,6 +418,53 @@
       const addr = "전북특별자치도 김제시 백구면 황토로 1079-25";
       document.getElementById("mapLink").href =
         "https://map.naver.com/p/search/" + encodeURIComponent(addr);
+    })();
+
+    // 품종 캐러셀: 모바일 스와이프 + PC 마우스 드래그 + 점 클릭, 항상 스냅
+    (function(){
+      const track = document.getElementById("vTrack");
+      const dotsWrap = document.getElementById("vDots");
+      if(!track || !dotsWrap) return;
+      const panels = track.children.length;
+
+      // 점 생성 + 클릭 이동
+      for(let i=0;i<panels;i++){
+        const d = document.createElement("span");
+        d.className = "d" + (i===0 ? " on" : "");
+        dotsWrap.appendChild(d);
+      }
+      const dots = dotsWrap.children;
+      function setActive(i){
+        i = Math.max(0, Math.min(panels-1, i));
+        for(let k=0;k<dots.length;k++) dots[k].classList.toggle("on", k===i);
+      }
+
+      // 스크롤 위치에 따라 활성 점 갱신
+      let raf = false;
+      track.addEventListener("scroll", function(){
+        if(!raf){ requestAnimationFrame(function(){ raf=false; setActive(Math.round(track.scrollLeft/track.clientWidth)); }); raf=true; }
+      }, { passive: true });
+
+      // PC 마우스 드래그
+      let down=false, startX=0, startL=0, moved=false;
+      track.addEventListener("mousedown", function(e){
+        down=true; moved=false; startX=e.pageX; startL=track.scrollLeft;
+        track.classList.add("dragging"); track.style.scrollSnapType="none"; e.preventDefault();
+      });
+      window.addEventListener("mousemove", function(e){
+        if(!down) return;
+        const dx = e.pageX - startX;
+        if(Math.abs(dx) > 3) moved = true;
+        track.scrollLeft = startL - dx;
+      });
+      window.addEventListener("mouseup", function(){
+        if(!down) return;
+        down=false; track.classList.remove("dragging"); track.style.scrollSnapType="";
+        const i = Math.round(track.scrollLeft / track.clientWidth);
+        track.scrollTo({ left: i*track.clientWidth, behavior:"smooth" });
+      });
+      // 드래그 직후 클릭(텍스트 선택 등) 무시
+      track.addEventListener("click", function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); } }, true);
     })();
 
     // 스크롤 등장 모션
