@@ -141,7 +141,7 @@
     .row .value { font-size: 18px; font-weight: 500; }
     .row .value.tel { color: var(--green); font-weight: 700; font-size: 22px; }
     .row .sub { font-size: 14px; color: var(--text-2); margin-top: 6px; }
-    .maplink { display: inline-block; margin-top: 8px; color: #0066cc; font-size: 15px; }
+    .maplink { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; color: #0066cc; font-size: 15px; }
 
     /* 주문 버튼 */
     .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
@@ -367,8 +367,16 @@
         <div class="row">
           <div class="label">주소</div>
           <div class="value" style="font-size:16px;font-weight:500">스마트팜 혁신밸리 스마트농업교육센터 N6</div>
-          <div class="sub">전북특별자치도 김제시 백구면 황토로 1079-25 (백구면) · 54331</div>
-          <a class="maplink" id="mapLink" target="_blank" rel="noopener">지도에서 보기 ↗</a>
+          <div class="sub">전북특별자치도 김제시 백구면 황토로 1079-25 (백구면)</div>
+          <a class="maplink" id="mapLink" target="_blank" rel="noopener">
+            지도에서 보기
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 4h6v6" />
+              <path d="M20 4l-9 9" />
+              <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+            </svg>
+          </a>
         </div>
       </div>
 
