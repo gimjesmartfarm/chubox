@@ -1,10 +1,7 @@
 name: Update chive price
 
 on:
-  schedule:
-    # 매시 17분
-    - cron: "17 * * * *"
-  workflow_dispatch: {}   # 수동 실행 버튼
+  workflow_dispatch: {}   # 수동 실행 버튼 for Cloudflare
 
 permissions:
   contents: write
