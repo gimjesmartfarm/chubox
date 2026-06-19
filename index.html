@@ -45,7 +45,7 @@
       border-bottom: 1px solid rgba(0,0,0,0.05);
       font-size: 15px;
     }
-    .nav .brand { font-weight: 600; }
+    .nav .brand { font-weight: 600; cursor: pointer;  }
     .nav .order { color: var(--green); font-weight: 500; }
 
     /* ---------- 공통 섹션 ---------- */
@@ -239,7 +239,7 @@
 </head>
 <body>
   <nav class="nav">
-    <span class="brand">김제 스마트팜혁신밸리 N6</span>
+    <a class="brand" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">스마트팜혁신밸리 | N6</a>
     <a class="order" href="#contact">주문 문의</a>
   </nav>
 
@@ -366,8 +366,8 @@
         </div>
         <div class="row">
           <div class="label">주소</div>
-          <div class="value" style="font-size:16px;font-weight:500">스마트팜 혁신밸리 스마트농업교육센터 N6</div>
           <div class="sub">전북특별자치도 김제시 백구면 황토로 1079-25 (백구면)</div>
+          <div class="value" style="font-size:16px;font-weight:500">스마트팜혁신밸리 스마트농업교육센터 N6</div>
           <a class="maplink" id="mapLink" target="_blank" rel="noopener">
             지도에서 보기
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
