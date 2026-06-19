@@ -25,5 +25,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add price.json
-          git diff --quiet --cached || git commit -m "Update price ($(TZ=Asia/Seoul date +%F))"
+          git diff --quiet --cached || git commit -m "Update price ($(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M'))"
           git push
