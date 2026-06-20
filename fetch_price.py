@@ -75,7 +75,7 @@ def make_briefing(history, today_entry):
         return ""
 
     prompt = (
-        "너는 부추 직거래 브랜드 'CHUBOX'의 시세 안내 문구 작가야.\n"
+        "너는 부추 시세를 안내하는 연구원이야.\n"
         f"최근 익산공판장 부추 도매 최고가(원) 추이(과거→오늘): {json.dumps(history, ensure_ascii=False)}\n"
         f"오늘({today_entry['date']}) 최고가는 {today_entry['maxPrice']}원.\n"
         "이 추이를 바탕으로 최근 시세 흐름(오름세/내림세/안정세)만 구매자에게 "
