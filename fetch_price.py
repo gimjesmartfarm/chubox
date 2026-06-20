@@ -70,7 +70,6 @@ def build_history(today, days=7, max_lookback=30, delay=0.2):
 
 
 def make_briefing(history, today_entry):
-    """history(과거~오늘)를 근거로 1~2문장 한국어 시세 브리핑 생성. 가격은 언급하지 않음."""
     if not GEMINI_API_KEY or not history:
         return ""
 

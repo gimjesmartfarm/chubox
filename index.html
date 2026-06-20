@@ -75,12 +75,20 @@
     .hero .lead { font-size: 23px; margin-top: 14px; }
 
     /* ---------- 오늘의 가격 박스 ---------- */
+    /* 가격박스 · 브리핑을 감싸는 반응형 행 */
+    .price-row {
+      display: flex; align-items: stretch; gap: 16px;
+      width: 100%; max-width: 980px; box-sizing: border-box;
+      margin: 44px auto 0;
+    }
+
     .price-box {
-      display: inline-block; margin-top: 44px; padding: 18px 26px;
-      min-width: 268px;
-      background: #fff; border: 1px solid var(--line); border-radius: 20px;
-      box-shadow: 0 2px 14px rgba(0,0,0,0.05); text-align: left;
-      word-break: keep-all;                   /* 한글 단어 중간에서 안 끊김 */
+      flex: 1 1 0; min-width: 0; margin: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px 26px;
+      background: #fff; border: 1px solid var(--line); border-radius: 18px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+      word-break: keep-all;
     }
     .price-box-label {
       display: flex; margin-top: 4px; align-items: center; justify-content: center; gap: 8px;
@@ -97,7 +105,7 @@
       70% { box-shadow: 0 0 0 7px rgba(47,191,107,0); }
       100% { box-shadow: 0 0 0 0 rgba(47,191,107,0); }
     }
-    .price-lines { display: flex; flex-direction: column; gap: 10px; }
+    .price-lines { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 193px; }
     .price-line { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; }
     .price-line .pk { font-size: 15px; color: var(--text-2); }
     .price-line b { font-size: 26px; font-weight: 800; color: var(--green); }
@@ -106,15 +114,14 @@
     .price-meta .price-note { color: #d9837a; font-size: 12px; }
 
     .briefing {
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      width: 100%; max-width: 980px; box-sizing: border-box;
-      margin: 12px auto 0; padding: 14px 18px;
+      flex: 1 1 0; min-width: 0; margin: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      padding: 20px 18px;
       background: rgba(29,122,62,0.06);
-      border: 1px solid rgba(29,122,62,0.16);
-      border-radius: 16px;
+      border: 1px solid rgba(29,122,62,0.16); border-radius: 18px;
       word-break: keep-all;
     }
-    .briefing-text { font-size: 14px; line-height: 1.55; color: var(--text); font-weight: 500; text-align: center; max-width: 36em; }
+    .briefing-text { font-size: 14px; line-height: 1.55; color: var(--text-2); font-weight: 500; text-align: center; max-width: 36em; }
     .briefing-tag {
       display: inline-flex; align-items: center; gap: 5px;
       font-size: 12px; font-weight: 600; color: var(--green);
@@ -251,6 +258,7 @@
       .lead { font-size: 17px; }
       .hero-shot { margin-top: 44px; border-radius: 16px; }
       .price-box { margin-top: 36px; }
+      .price-row { flex-direction: column; margin-top: 1px; }
       .contact { padding: 64px 20px 30px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -272,23 +280,25 @@
     <p class="lead reveal">최상의 신선함을 담았습니다.</p>
 
     <div class="reveal">
-      <div class="price-box" id="priceBox" style="display:none">
-        <div class="price-box-label"><span class="dot"></span> 오늘의 가격</div>
-        <div class="price-lines">
-          <div class="price-line"><span class="pk">4kg 박스</span><b id="price4">—</b></div>
-          <div class="price-line"><span class="pk">2kg 박스</span><b id="price2">—</b></div>
+      <div class="price-row">
+        <div class="price-box" id="priceBox" style="display:none">
+          <div class="price-box-label"><span class="dot"></span> 오늘의 가격</div>
+          <div class="price-lines">
+            <div class="price-line"><span class="pk">4kg 박스</span><b id="price4">—</b></div>
+            <div class="price-line"><span class="pk">2kg 박스</span><b id="price2">—</b></div>
+          </div>
+          <div class="price-meta" id="priceMeta"></div>
         </div>
-        <div class="price-meta" id="priceMeta"></div>
-      </div>
     
-      <div class="briefing" id="briefing" style="display:none">
-        <span class="briefing-tag">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z" />
-          </svg>
-          AI 시세 브리핑
-        </span>
-        <span class="briefing-text" id="briefingText"></span>
+        <div class="briefing" id="briefing" style="display:none">
+          <span class="briefing-tag">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z" />
+            </svg>
+            AI 시세 브리핑
+          </span>
+          <span class="briefing-text" id="briefingText"></span>
+        </div>
       </div>
     </div>
 
@@ -455,12 +465,12 @@
             { timeZone: "Asia/Seoul", hour: "2-digit", hourCycle: "h23" }).format(nowKST), 10);
 
           let metaHTML =
-            "도매시장 시세를 반영해 매일 아침 새로 책정돼요<br>";
+            "시세를 반영해 매일 아침 새로 책정돼요<br>";
             
           // 아침 8시 이후인데 기준 도매가가 오늘 날짜가 아니면 = 도매시장 휴무일
           if (hourKST >= 8 && d.date !== todayKST) {
             metaHTML +=
-              "<div class='price-note'>오늘은 도매시장 휴무일이에요<br>이전 도매가가 기준이 됐어요</div>";
+              "<div class='price-note'>오늘은 도매시장 휴무일이에요</div>";
           }
 
           metaHTML += "<span class='meta-date'>" + d.date + " 도매가 기준</span>";
@@ -468,7 +478,7 @@
           
           document.getElementById("priceMeta").innerHTML = metaHTML;
 
-          document.getElementById("priceBox").style.display = "inline-block";
+          document.getElementById("priceBox").style.display = "flex";
 
           if (d.briefing) {
             document.getElementById("briefingText").textContent = d.briefing;
