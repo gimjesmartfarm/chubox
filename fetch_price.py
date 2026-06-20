@@ -90,9 +90,9 @@ def make_briefing(history, today_entry):
         {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
-            "maxOutputTokens": 512,
+            "maxOutputTokens": 1024,      # 생각 + 문장 모두 담을 만큼 넉넉히
             "temperature": 0.7,
-            "thinkingConfig": {"thinkingBudget": 0}
+            "thinkingConfig": {"thinkingBudget": 256}   # 살짝만
         },
         }
     ).encode("utf-8")
