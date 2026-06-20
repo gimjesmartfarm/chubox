@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -47,6 +48,26 @@ def extract_items(data: dict) -> list:
     return item or []
 
 
+def build_history(today, days=7, max_lookback=30, delay=0.2):
+    """경매가 있었던 최근 days일치 {date, maxPrice}를 과거로 거슬러 수집 (최초 1회용)."""
+    history = []
+    for back in range(0, max_lookback + 1):
+        if len(history) >= days:
+            break
+        date_str = (today - timedelta(days=back)).isoformat()
+        try:
+            items = extract_items(fetch(date_str))
+        except Exception as e:
+            print(f"[history {date_str}] 호출 실패: {e}")
+            continue
+        if items:
+            top = max(items, key=lambda x: float(x.get("scsbd_prc", 0)))
+            history.append({"date": date_str, "maxPrice": int(float(top["scsbd_prc"]))})
+        time.sleep(delay)  # 너무 빠른 연속 호출 방지
+    history.reverse()  # 과거 -> 최신 순
+    return history
+
+
 def main():
     today = datetime.now(KST).date()
     now_iso = datetime.now(KST).isoformat(timespec="seconds")
@@ -85,6 +106,28 @@ def main():
             "maxPrice": None,
             "updatedAt": now_iso,
         }
+
+    # ── history: 비어있으면 과거치로 백필, 이후엔 오늘치만 추가 ──────────
+    try:
+        with open("price.json", "r", encoding="utf-8") as f:
+            history = json.load(f).get("history", [])
+    except (FileNotFoundError, json.JSONDecodeError):
+        history = []
+
+    if not history:
+        # 최초 1회: 과거 경매일 7일치 백필
+        history = build_history(today)
+    elif result.get("maxPrice") is not None:
+        # 이후: 오늘 도매가만 추가(같은 날 재실행이면 덮어쓰기), 최근 7일 유지
+        entry = {"date": result["date"], "maxPrice": result["maxPrice"]}
+        if history[-1].get("date") != result["date"]:
+            history.append(entry)
+        else:
+            history[-1] = entry
+        history = history[-7:]
+
+    result["history"] = history
+    # ──────────────────────────────────────────────────────────────────
 
     with open("price.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
