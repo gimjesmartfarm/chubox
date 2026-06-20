@@ -18,6 +18,7 @@ jobs:
       - name: Fetch price
         env:
           KAT_SERVICE_KEY: ${{ secrets.KAT_SERVICE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python fetch_price.py
 
       - name: Commit price.json
