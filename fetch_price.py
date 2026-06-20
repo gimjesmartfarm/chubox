@@ -88,12 +88,7 @@ def make_briefing(history, today_entry):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     body = json.dumps(
         {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {
-            "maxOutputTokens": 1024,      # 생각 + 문장 모두 담을 만큼 넉넉히
-            "temperature": 0.7,
-            "thinkingConfig": {"thinkingBudget": 256}   # 살짝만
-        },
+            "contents": [{"parts": [{"text": prompt}]}]
         }
     ).encode("utf-8")
 
