@@ -7,7 +7,7 @@
   "itemName": "부추",
   "variety": "일반부추",
   "auctionAt": "2026-06-20 06:05:21",
-  "updatedAt": "2026-06-20T14:49:55+09:00",
+  "updatedAt": "2026-06-20T15:33:15+09:00",
   "history": [
     {
       "date": "2026-06-13",
@@ -37,5 +37,7 @@
       "date": "2026-06-20",
       "maxPrice": 9000
     }
-  ]
+  ],
+  "briefing": "",
+  "briefingDate": ""
 }
