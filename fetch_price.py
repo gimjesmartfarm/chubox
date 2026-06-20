@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 # 서비스키는 코드에 하드코딩하지 않고 GitHub Secret(환경변수)에서 읽습니다.
 SERVICE_KEY = os.environ["KAT_SERVICE_KEY"]
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")  # 없으면 브리핑 생략
 BASE = "https://apis.data.go.kr/B552845/katRealTime2/trades2"
 KST = timezone(timedelta(hours=9))
 MAX_LOOKBACK_DAYS = 14  # 경매가 없는 날이면 최대 14일 전까지 거슬러 올라가며 탐색
@@ -68,6 +69,45 @@ def build_history(today, days=7, max_lookback=30, delay=0.2):
     return history
 
 
+def make_briefing(history, today_entry):
+    """history(과거~오늘)를 근거로 1~2문장 한국어 시세 브리핑 생성. 가격은 언급하지 않음."""
+    if not GEMINI_API_KEY or not history:
+        return ""
+
+    prompt = (
+        "너는 부추 직거래 브랜드 'CHUBOX'의 시세 안내 문구 작가야.\n"
+        f"최근 익산공판장 부추 도매 최고가(원) 추이(과거→오늘): {json.dumps(history, ensure_ascii=False)}\n"
+        f"오늘({today_entry['date']}) 최고가는 {today_entry['maxPrice']}원.\n"
+        "이 추이를 바탕으로 최근 시세 흐름(오름세/내림세/안정세)만 구매자에게 "
+        "친근하게 알려주는 1~2문장 한국어 문구를 써줘.\n"
+        "규칙: 구체적인 가격·숫자를 문장에 쓰지 말 것, 과장·이모지 금지, 문구만 출력."
+    )
+
+    MODEL = "gemini-3.5-flash"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
+    body = json.dumps(
+        {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": 200, "temperature": 0.7},
+        }
+    ).encode("utf-8")
+
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={"content-type": "application/json", "x-goog-api-key": GEMINI_API_KEY},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        parts = data["candidates"][0]["content"]["parts"]
+        return "".join(p.get("text", "") for p in parts).strip()
+    except Exception as e:
+        print(f"브리핑 생성 실패: {e}")
+        return ""
+
+
 def main():
     today = datetime.now(KST).date()
     now_iso = datetime.now(KST).isoformat(timespec="seconds")
@@ -127,6 +167,31 @@ def main():
         history = history[-7:]
 
     result["history"] = history
+
+    # ── 브리핑: 오늘 도매가가 있고, 오늘자 브리핑이 아직 없을 때만 생성 ──
+    prev_briefing = ""
+    prev_briefing_date = ""
+    try:
+        with open("price.json", "r", encoding="utf-8") as f:
+            _prev = json.load(f)
+        prev_briefing = _prev.get("briefing", "")
+        prev_briefing_date = _prev.get("briefingDate", "")
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+
+    if result.get("maxPrice") is not None and prev_briefing_date != result["date"]:
+        text = make_briefing(
+            history, {"date": result["date"], "maxPrice": result["maxPrice"]}
+        )
+        if text:
+            result["briefing"] = text
+            result["briefingDate"] = result["date"]
+        else:
+            result["briefing"] = prev_briefing  # 실패 시 이전 문구 유지
+            result["briefingDate"] = prev_briefing_date
+    else:
+        result["briefing"] = prev_briefing  # 이미 오늘자 있으면 재사용
+        result["briefingDate"] = prev_briefing_date
     # ──────────────────────────────────────────────────────────────────
 
     with open("price.json", "w", encoding="utf-8") as f:
