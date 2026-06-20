@@ -98,8 +98,9 @@
     .price-line { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; }
     .price-line .pk { font-size: 15px; color: var(--text-2); }
     .price-line b { font-size: 26px; font-weight: 800; color: var(--green); }
-    .price-meta { margin-top: 12px; font-size: 13px; color: var(--text-2); text-align: center; line-height: 1.55; }
+    .price-meta { margin-top: 15px; font-size: 13px; color: var(--text-2); text-align: center; line-height: 1.55; }
     .price-meta .meta-date { color: #9ca3af; font-size: 12px; }
+    .price-meta .price-note { color: #d9837a; font-size: 12px; }
 
     .hero-shot {
       max-width: 980px; margin: 48px auto 0; overflow: hidden;
@@ -413,9 +414,28 @@
           const { p4, p2 } = todayPrices(d.maxPrice);
           document.getElementById("price4").textContent = won(p4);
           document.getElementById("price2").textContent = won(p2);
-          document.getElementById("priceMeta").innerHTML =
-            "도매시장 시세를 반영해 매일 새로 책정해요<br>" +
-            "<span class='meta-date'>" + d.date + " 도매가 기준</span>";
+
+          // 한국시간 기준 오늘 날짜(YYYY-MM-DD)와 현재 시(0~23)
+          const nowKST = new Date();
+          const todayKST = new Intl.DateTimeFormat("en-CA",
+            { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(nowKST);
+          const hourKST = parseInt(new Intl.DateTimeFormat("en-GB",
+            { timeZone: "Asia/Seoul", hour: "2-digit", hourCycle: "h23" }).format(nowKST), 10);
+
+          let metaHTML =
+            "도매시장 시세를 반영해 매일 아침 새로 책정돼요<br>";
+            
+          // 아침 8시 이후인데 기준 도매가가 오늘 날짜가 아니면 = 도매시장 휴무일
+          if (hourKST >= 8 && d.date !== todayKST) {
+            metaHTML +=
+              "<div class='price-note'>오늘은 도매시장 휴무일이에요<br>이전 도매가가 기준이 됐어요</div>";
+          }
+
+          metaHTML += "<span class='meta-date'>" + d.date + " 도매가 기준</span>";
+
+          
+          document.getElementById("priceMeta").innerHTML = metaHTML;
+
           document.getElementById("priceBox").style.display = "inline-block";
         }
       } catch(e){ /* 가격 정보 없으면 조용히 숨김 */ }
