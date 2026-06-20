@@ -183,11 +183,13 @@ def main():
         text = make_briefing(
             history, {"date": result["date"], "maxPrice": result["maxPrice"]}
         )
-        if text and len(text) >= 10:
-            result["briefing"] = text
+        clean = " ".join(text.split())
+        has_hangul = any("가" <= ch <= "힣" for ch in clean)
+        if clean and len(clean) >= 10 and has_hangul:
+            result["briefing"] = clean
             result["briefingDate"] = result["date"]
         else:
-            result["briefing"] = prev_briefing  # 실패 시 이전 문구 유지
+            result["briefing"] = prev_briefing  # 불량/실패 시 이전 문구 유지
             result["briefingDate"] = prev_briefing_date
     else:
         result["briefing"] = prev_briefing  # 이미 오늘자 있으면 재사용
