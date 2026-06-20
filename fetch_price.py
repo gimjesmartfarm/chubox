@@ -83,7 +83,7 @@ def make_briefing(history, today_entry):
         "규칙: 구체적인 가격·숫자를 문장에 쓰지 말 것, 과장·이모지 금지, 문구만 출력."
     )
 
-    MODEL = "gemini-2.5-flash-lite"   # 현재 무료 모델, 추론 안 함, RPD 여유
+    MODEL = "gemini-2.5-flash-lite"
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     body = json.dumps(
         {

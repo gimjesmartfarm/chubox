@@ -75,12 +75,12 @@
 
     /* ---------- 오늘의 가격 박스 ---------- */
     .price-box {
-      display: inline-block; margin-top: 28px; padding: 18px 26px;
+      display: inline-block; margin-top: 32px; padding: 18px 26px;
       background: #fff; border: 1px solid var(--line); border-radius: 20px;
       box-shadow: 0 2px 14px rgba(0,0,0,0.05); text-align: left; min-width: 268px;
     }
     .price-box-label {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+      display: flex; margin-top: 28px; align-items: center; justify-content: center; gap: 8px;
       font-size: 14px; font-weight: 600; color: var(--text-2); margin-bottom: 14px;
     }
     .dot {
@@ -101,6 +101,18 @@
     .price-meta { margin-top: 15px; font-size: 13px; color: var(--text-2); text-align: center; line-height: 1.55; }
     .price-meta .meta-date { color: #9ca3af; font-size: 12px; }
     .price-meta .price-note { color: #d9837a; font-size: 12px; }
+
+    .briefing {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      max-width: 32em; margin: 10px auto 0;
+    }
+    .briefing-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; color: var(--green);
+      background: rgba(29,122,62,0.08); border-radius: 999px; padding: 4px 10px;
+    }
+    .briefing-tag svg { width: 13px; height: 13px; }
+    .briefing-text { font-size: 15px; line-height: 1.55; color: var(--green); font-weight: 500; }
 
     .hero-shot {
       max-width: 980px; margin: 48px auto 0; overflow: hidden;
@@ -251,6 +263,17 @@
 
     <div class="reveal">
       <div class="price-box" id="priceBox" style="display:none">
+
+        <div class="briefing reveal" id="briefing" style="display:none">
+          <span class="briefing-tag">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z" />
+            </svg>
+            AI 시세 브리핑
+          </span>
+          <span class="briefing-text" id="briefingText"></span>
+        </div>
+        
         <div class="price-box-label"><span class="dot"></span> 오늘의 가격</div>
         <div class="price-lines">
           <div class="price-line"><span class="pk">4kg 박스</span><b id="price4">—</b></div>
@@ -437,6 +460,11 @@
           document.getElementById("priceMeta").innerHTML = metaHTML;
 
           document.getElementById("priceBox").style.display = "inline-block";
+
+          if (d.briefing) {
+            document.getElementById("briefingText").textContent = d.briefing;
+            document.getElementById("briefing").style.display = "flex";
+          }
         }
       } catch(e){ /* 가격 정보 없으면 조용히 숨김 */ }
     })();
