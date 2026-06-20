@@ -83,12 +83,12 @@ def make_briefing(history, today_entry):
         "규칙: 구체적인 가격·숫자를 문장에 쓰지 말 것, 과장·이모지 금지, 문구만 출력."
     )
 
-    MODEL = "gemini-2.5-flash"
+    MODEL = "gemini-2.0-flash"  # 추론 안 하는 모델 (브리핑에 적합)
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     body = json.dumps(
         {
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": 200, "temperature": 0.7},
+            "generationConfig": {"maxOutputTokens": 256, "temperature": 0.7},
         }
     ).encode("utf-8")
 
@@ -183,7 +183,7 @@ def main():
         text = make_briefing(
             history, {"date": result["date"], "maxPrice": result["maxPrice"]}
         )
-        if text:
+        if text and len(text) >= 10:
             result["briefing"] = text
             result["briefingDate"] = result["date"]
         else:
