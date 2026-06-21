@@ -75,17 +75,10 @@
     .hero .lead { font-size: 23px; margin-top: 14px; }
 
     /* ---------- 오늘의 가격 박스 ---------- */
-    /* 가격박스 · 브리핑을 감싸는 반응형 행 */
-    .price-row {
-      display: flex; align-items: stretch; gap: 16px;
-      width: 100%; max-width: 980px; box-sizing: border-box;
-      margin: 44px auto 0;
-    }
-
     .price-box {
-      flex: 1 1 0; min-width: 0; margin: 0;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 20px 26px;
+      display: flex; flex-direction: column; align-items: center;
+      width: 100%; max-width: 290px; margin: 44px auto 0;
+      box-sizing: border-box; padding: 22px 26px;
       background: #fff; border: 1px solid var(--line); border-radius: 18px;
       box-shadow: 0 2px 14px rgba(0,0,0,0.05);
       word-break: keep-all;
@@ -114,14 +107,11 @@
     .price-meta .price-note { color: #d9837a; font-size: 12px; }
 
     .briefing {
-      flex: 1 1 0; min-width: 0; margin: 0;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-      padding: 20px 18px;
-      background: rgba(29,122,62,0.06);
-      border: 1px solid rgba(29,122,62,0.16); border-radius: 18px;
-      word-break: keep-all;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      width: 100%; margin-top: 15px; padding-top: 20px;
+      border-top: 1px solid var(--line);
     }
-    .briefing-text { font-size: 14px; line-height: 1.55; color: var(--text-2); font-weight: 500; text-align: center; max-width: 36em; }
+    .briefing-text { font-size: 13px; line-height: 1.55; color: var(--green); font-weight: 450; text-align: center; max-width: 36em; }
     .briefing-tag {
       display: inline-flex; align-items: center; gap: 5px;
       font-size: 12px; font-weight: 600; color: var(--green);
@@ -257,8 +247,7 @@
       h2 { font-size: 28px; }
       .lead { font-size: 17px; }
       .hero-shot { margin-top: 44px; border-radius: 16px; }
-      .price-box { margin-top: 36px; }
-      .price-row { flex-direction: column; margin-top: 1px; }
+      .price-box { margin-top: 24px; }
       .contact { padding: 64px 20px 30px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -280,15 +269,13 @@
     <p class="lead reveal">최상의 신선함을 담았습니다.</p>
 
     <div class="reveal">
-      <div class="price-row">
-        <div class="price-box" id="priceBox" style="display:none">
-          <div class="price-box-label"><span class="dot"></span> 오늘의 가격</div>
-          <div class="price-lines">
-            <div class="price-line"><span class="pk">4kg 박스</span><b id="price4">—</b></div>
-            <div class="price-line"><span class="pk">2kg 박스</span><b id="price2">—</b></div>
-          </div>
-          <div class="price-meta" id="priceMeta"></div>
+      <div class="price-box" id="priceBox" style="display:none">
+        <div class="price-box-label"><span class="dot"></span> 오늘의 가격</div>
+        <div class="price-lines">
+          <div class="price-line"><span class="pk">4kg 박스</span><b id="price4">—</b></div>
+          <div class="price-line"><span class="pk">2kg 박스</span><b id="price2">—</b></div>
         </div>
+        <div class="price-meta" id="priceMeta"></div>
     
         <div class="briefing" id="briefing" style="display:none">
           <span class="briefing-tag">
@@ -346,7 +333,7 @@
       <p class="eyebrow reveal">양액재배</p>
       <h2 class="reveal">펄라이트 배지에서<br />양액으로 키웁니다.</h2>
       <p class="lead reveal">흙이 아닌 깨끗한 펄라이트 배지.<br />일정한 양분과 물로 뿌리부터 건강하게 자랍니다.</p>
-      <div class="shot reveal"><img src="images/beds.jpg" alt="펄라이트 배지 양액재배 베드" loading="lazy" /></div>
+      <div class="shot reveal"><img src="images/perlite.jpg" alt="펄라이트 배지 양액재배 베드" loading="lazy" /></div>
     </div>
   </section>
 
