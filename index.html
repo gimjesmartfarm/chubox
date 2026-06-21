@@ -455,9 +455,9 @@
             "시세를 반영해 매일 아침 새로 책정돼요<br>";
             
           // 아침 7시 이후인데 기준 도매가가 오늘 날짜가 아니면 = 도매시장 휴무일
-          if (hourKST >= 7 && d.date !== todayKST) {
+          if (d.date !== todayKST) {
             metaHTML +=
-              "<div class='price-note'>장이 쉬는 날엔 직전 경매가를 기준 삼아요</div>";
+              "<div class='price-note'>직전 경매일 가격을 기준 삼았어요</div>";
           }
 
           metaHTML += "<span class='meta-date'>" + d.date + " 도매가 기준</span>";
