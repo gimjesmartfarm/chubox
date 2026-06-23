@@ -429,7 +429,7 @@
     function todayPrices(maxPrice){
       const raw = maxPrice * 1.2;
       const p4 = raw < 10000 ? 10000 : Math.ceil(raw / 1000) * 1000;
-      const half = p4 / 2;
+      const half = Math.floor(p4 / 2 / 1000) * 1000;   // 절반을 1000원 단위로 내림
       const p2 = half <= 10000 ? half + 1000 : half + 2000;
       return { p4, p2 };
     }
