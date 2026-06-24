@@ -34,7 +34,7 @@
       border-bottom: 1px solid rgba(0,0,0,0.05);
       font-size: 15px;
     }
-    .nav .brand { font-weight: 600; cursor: pointer;  }
+    .nav .brand { font-weight: 600; cursor: pointer; }
     .nav .order { color: var(--green); font-weight: 500; }
 
     /* ---------- 공통 섹션 ---------- */
@@ -65,13 +65,23 @@
 
     /* ---------- 오늘의 가격 박스 ---------- */
     .price-box {
+      position: relative;
       display: flex; flex-direction: column; align-items: center;
       width: 100%; max-width: 290px; margin: 44px auto 0;
       box-sizing: border-box; padding: 22px 26px;
       background: #fff; border: 1px solid var(--line); border-radius: 18px;
       box-shadow: 0 2px 14px rgba(0,0,0,0.05);
-      word-break: keep-all;
+      word-break: keep-all; overflow: hidden;
     }
+    /* 추세 그래프: 박스 하단 40%에 배경으로 깔림 */
+    .trend {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 40%;
+      pointer-events: none; z-index: 0;
+    }
+    /* 그래프 위 내용은 항상 위로 */
+    .price-box > *:not(.trend) { position: relative; z-index: 1; }
+
     .price-box-label {
       display: flex; margin-top: 4px; align-items: center; justify-content: center; gap: 8px;
       font-size: 14px; font-weight: 600; color: var(--text-2); margin-bottom: 14px;
@@ -83,16 +93,16 @@
       animation: pulse 2s infinite;
     }
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(47,191,107,0.45); }
-      70% { box-shadow: 0 0 0 7px rgba(47,191,107,0); }
-      100% { box-shadow: 0 0 0 0 rgba(47,191,107,0); }
+      0%   { box-shadow: 0 0 0 0   rgba(47,191,107,0.45); }
+      70%  { box-shadow: 0 0 0 7px rgba(47,191,107,0); }
+      100% { box-shadow: 0 0 0 0   rgba(47,191,107,0); }
     }
     .price-lines { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 200px; }
     .price-line { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; }
-    .price-line .pk { font-size: 15px; color: var(--text-2); }
-    .price-line b { font-size: 26px; font-weight: 800; color: var(--green); }
+    .price-line .pk { font-size: 15px; color: var(--text-2); white-space: nowrap; }
+    .price-line b  { font-size: 26px; font-weight: 800; color: var(--green); white-space: nowrap; }
     .price-meta { margin-top: 15px; font-size: 13px; color: var(--text-2); text-align: center; line-height: 1.55; }
-    .price-meta .meta-date { color: #9ca3af; font-size: 12px; }
+    .price-meta .meta-date  { color: #9ca3af; font-size: 12px; }
     .price-meta .price-note { color: #d9837a; font-size: 12px; }
 
     .briefing {
@@ -100,7 +110,10 @@
       width: 100%; margin-top: 15px; padding-top: 20px;
       border-top: 1px solid var(--line);
     }
-    .briefing-text { font-size: 13px; line-height: 1.55; color: var(--green); font-weight: 450; text-align: center; max-width: 36em; }
+    .briefing-text {
+      font-size: 13px; line-height: 1.55; color: var(--green);
+      font-weight: 450; text-align: center; max-width: 36em;
+    }
     .briefing-tag {
       display: inline-flex; align-items: center; gap: 5px;
       font-size: 12px; font-weight: 600; color: var(--green);
@@ -118,8 +131,7 @@
       max-width: 560px; margin: 30px auto 0;
       background: #fff8ec; border: 1px solid #f0e2c2; color: #7a5a12;
       border-radius: 16px; padding: 16px 20px; font-size: 15px; line-height: 1.55;
-      text-align: center;
-      word-break: keep-all;
+      text-align: center; word-break: keep-all;
     }
     .notice b { font-weight: 700; }
 
@@ -205,7 +217,7 @@
       word-break: keep-all;
     }
     .variety-panel h3 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
-    .variety-panel p { font-size: 15px; line-height: 1.62; color: rgba(255,255,255,0.92); }
+    .variety-panel p  { font-size: 15px; line-height: 1.62; color: rgba(255,255,255,0.92); }
 
     .variety-dots { display: flex; gap: 8px; justify-content: center; margin-top: 18px; }
     .variety-dots .d {
@@ -213,16 +225,6 @@
       transition: width .3s ease, background .3s ease;
     }
     .variety-dots .d.on { width: 22px; background: var(--green); }
-
-    @media (max-width: 734px) {
-      .variety-card { border-radius: 16px; }
-      .variety-panel { padding: 22px 22px; }
-      .variety-panel h3 { font-size: 21px; }
-      .variety-panel p { font-size: 14px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .variety-hint .ar { animation: none; }
-    }
 
     /* ---------- 스크롤 등장 모션 ---------- */
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
@@ -239,9 +241,14 @@
       .hero-shot { margin-top: 44px; border-radius: 16px; }
       .price-box { margin-top: 24px; }
       .contact { padding: 64px 20px 30px; }
+      .variety-card { border-radius: 16px; }
+      .variety-panel { padding: 22px 22px; }
+      .variety-panel h3 { font-size: 21px; }
+      .variety-panel p  { font-size: 14px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .reveal { opacity: 1; transform: none; transition: none; }
       .dot { animation: none; }
+      .variety-hint .ar { animation: none; }
       html { scroll-behavior: auto; }
     }
