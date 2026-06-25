@@ -7,7 +7,7 @@
   "itemName": "부추",
   "variety": "일반부추",
   "auctionAt": "2026-06-25 06:18:46",
-  "updatedAt": "2026-06-25T20:31:32+09:00",
+  "updatedAt": "2026-06-25T20:33:00+09:00",
   "history": [
     {
       "date": "2026-06-18",
@@ -38,6 +38,6 @@
       "maxPrice": 6700
     }
   ],
-  "briefing": "",
-  "briefingDate": ""
+  "briefing": "최근 부추 시세는 꾸준히 내림세를 보이고 있어요.",
+  "briefingDate": "2026-06-25"
 }
