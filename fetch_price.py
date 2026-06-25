@@ -97,24 +97,23 @@ def make_briefing(history, today_entry):
         headers={"content-type": "application/json", "x-goog-api-key": GEMINI_API_KEY},
         method="POST",
     )
-    for attempt in range(3):  # 최대 3회 시도
+    for attempt in range(2):  # 3회 → 2회로 줄임
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             parts = data["candidates"][0]["content"]["parts"]
             return "".join(p.get("text", "") for p in parts).strip()
         except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 503) and attempt < 2:
-                wait = 5 * (attempt + 1)  # 5초, 10초
-                print(f"{e.code} - {wait}초 후 재시도")
-                time.sleep(wait)
+            if e.code in (429, 500, 503) and attempt == 0:
+                print(f"{e.code} - 15초 후 재시도")
+                time.sleep(15)   # 5+10 → 한 번에 15초
                 continue
             print(f"브리핑 생성 실패: {e}")
             return ""
         except Exception as e:
-            if attempt < 2:
-                print(f"일시 오류({e}) - 5초 후 재시도")
-                time.sleep(5)
+            if attempt == 0:
+                print(f"일시 오류({e}) - 15초 후 재시도")
+                time.sleep(15)
                 continue
             print(f"브리핑 생성 실패: {e}")
             return ""
