@@ -83,46 +83,55 @@ def make_briefing(history, today_entry):
         "규칙: 구체적인 가격이나 비율, 숫자는 문장에 쓰지 말 것, 과장·이모지 금지, 문구만 출력."
     )
 
-    MODEL = "gemini-3.5-flash"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
-    body = json.dumps(
-        {
-            "contents": [{"parts": [{"text": prompt}]}]
-        }
-    ).encode("utf-8")
+    # 모델 폴백 순서: 3.5-flash → 3-flash → 3.1-flash-lite
+    MODELS = ["gemini-3.5-flash", "gemini-3-flash", "gemini-3.1-flash-lite"]
+    MAX_ATTEMPTS = 3  # 초기 1회 + 재시도 2회
+    BASE_DELAY = 5  # 5 → 10초
 
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers={"content-type": "application/json", "x-goog-api-key": GEMINI_API_KEY},
-        method="POST",
-    )
+    for model in MODELS:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        body = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=body,
+            method="POST",
+            headers={
+                "content-type": "application/json",
+                "x-goog-api-key": GEMINI_API_KEY,
+            },
+        )
 
-    MAX_ATTEMPTS = 4        # 초기 1회 + 재시도 3회
-    BASE_DELAY   = 5        # 5 → 10 → 20초
+        for attempt in range(MAX_ATTEMPTS):
+            try:
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                parts = data["candidates"][0]["content"]["parts"]
+                text = "".join(p.get("text", "") for p in parts).strip()
+                print(f"브리핑 생성 성공 ({model})")
+                return text
+            except urllib.error.HTTPError as e:
+                if e.code in (429, 500, 503) and attempt < MAX_ATTEMPTS - 1:
+                    wait = BASE_DELAY * (2**attempt)  # 5 → 10
+                    print(
+                        f"[{model}] {e.code} - {wait}초 후 재시도 ({attempt+1}/{MAX_ATTEMPTS-1})"
+                    )
+                    time.sleep(wait)
+                else:
+                    print(f"[{model}] 실패: {e}")
+                    break  # 다음 모델로
+            except Exception as e:
+                if attempt < MAX_ATTEMPTS - 1:
+                    wait = BASE_DELAY * (2**attempt)
+                    print(
+                        f"[{model}] 일시 오류({e}) - {wait}초 후 재시도 ({attempt+1}/{MAX_ATTEMPTS-1})"
+                    )
+                    time.sleep(wait)
+                else:
+                    print(f"[{model}] 실패: {e}")
+                    break  # 다음 모델로
 
-    for attempt in range(MAX_ATTEMPTS):
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp:  # 120초
-                data = json.loads(resp.read().decode("utf-8"))
-            parts = data["candidates"][0]["content"]["parts"]
-            return "".join(p.get("text", "") for p in parts).strip()
-        except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 503) and attempt < MAX_ATTEMPTS - 1:
-                wait = BASE_DELAY * (2 ** attempt)   # 5 → 10 → 20
-                print(f"{e.code} - {wait}초 후 재시도 ({attempt+1}/{MAX_ATTEMPTS-1})")
-                time.sleep(wait)
-                continue
-            print(f"브리핑 생성 실패: {e}")
-            return ""
-        except Exception as e:
-            if attempt < MAX_ATTEMPTS - 1:
-                wait = BASE_DELAY * (2 ** attempt)
-                print(f"일시 오류({e}) - {wait}초 후 재시도 ({attempt+1}/{MAX_ATTEMPTS-1})")
-                time.sleep(wait)
-                continue
-            print(f"브리핑 생성 실패: {e}")
-            return ""
+    print("브리핑 생성 실패: 모든 모델 소진")
+    return ""
 
 
 def main():
