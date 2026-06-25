@@ -75,6 +75,7 @@
     }
     /* 추세 그래프: 박스 하단 40%에 배경으로 깔림 */
     .trend {
+      display: none;                      /* 기본 숨김, JS로 브리핑 있을 때만 표시 */
       position: absolute; left: 0; right: 0; bottom: 0;
       width: 100%; height: 40%;
       pointer-events: none; z-index: 0;

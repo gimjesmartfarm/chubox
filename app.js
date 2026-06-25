@@ -87,6 +87,9 @@
           if (d.briefing) {
             document.getElementById("briefingText").textContent = d.briefing;
             document.getElementById("briefing").style.display = "flex";
+            document.getElementById("trend").style.display = "block";  // 그래프 같이 표시
+          } else {
+            document.getElementById("trend").style.display = "none";   // 브리핑 없으면 숨김
           }
         }
       } catch(e){ /* 가격 정보 없으면 조용히 숨김 */ }
