@@ -79,12 +79,11 @@ def make_briefing(history, today_entry):
         f"오늘({today_entry['date']}) 최고가는 {today_entry['maxPrice']}원.\n"
         "이 추이를 바탕으로 최근 시세 흐름(오름세/내림세/안정세)만 구매자에게 친근하게 알려주는 1~2문장 한국어 문구를 써줘.\n"
         "하십시오체보다는 해요체가 좋아.\n"
-        "필요하면 앞에 번호를 붙이고 문장마다 줄바꿈을해서 보여줘도 좋아.\n"
         "규칙: 구체적인 가격이나 비율, 숫자는 문장에 쓰지 말 것, 과장·이모지 금지, 문구만 출력."
     )
 
     # 모델 폴백 순서: 3.5-flash → 3-flash → 3.1-flash-lite
-    MODELS = ["gemini-3.5-flash", "gemini-3-flash", "gemini-3.1-flash-lite"]
+    MODELS = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"]
     MAX_ATTEMPTS = 3  # 초기 1회 + 재시도 2회
     BASE_DELAY = 5  # 5 → 10초
 
