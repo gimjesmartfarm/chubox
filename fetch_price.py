@@ -148,6 +148,12 @@ def main():
             print(f"[{date_str}] 호출 실패: {e}")
             continue
 
+        items = extract_items(data)
+        print(f"[{date_str}] 건수: {len(items)}")
+        if not items:
+            continue
+
+        # 4kg 단위 항목만 사용
         items = [x for x in items if float(x.get("unit_qty") or 0) == 4]
         if not items:
             print(f"[{date_str}] 4kg 단위 항목 없음, 건너뜀")
