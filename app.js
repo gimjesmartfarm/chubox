@@ -30,10 +30,10 @@
             { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" })
             .format(new Date(nowKST.getTime() - 86400000));
 
-          // 휴무 판정: 7시 이후엔 오늘, 새벽(0~7시)엔 어제 경매가가 있어야 정상
+          // 휴무 판정: 7시 이후엔 오늘, 새벽(0~7시)엔 오늘 또는 어제 경매가가 있어야 정상
           const isMarketClosed =
             (hourKST >= 7 && d.date !== todayKST) ||
-            (hourKST <  7 && d.date !== yesterdayKST);
+            (hourKST <  7 && d.date !== todayKST && d.date !== yesterdayKST);
 
           let metaHTML = "시세를 반영해 매일 아침 새로 책정돼요<br>";
           if (isMarketClosed) {
