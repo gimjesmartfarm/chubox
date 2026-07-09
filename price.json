@@ -1,13 +1,13 @@
 {
   "date": "2026-07-10",
-  "maxPrice": 4900,
+  "maxPrice": 6900,
   "unitQty": 4,
   "unit": "kg",
   "marketName": "익산",
   "itemName": "부추",
   "variety": "일반부추",
-  "auctionAt": "2026-07-10 05:53:08",
-  "updatedAt": "2026-07-10T07:45:14+09:00",
+  "auctionAt": "2026-07-10 06:41:31",
+  "updatedAt": "2026-07-10T08:00:11+09:00",
   "history": [
     {
       "date": "2026-07-03",
@@ -35,7 +35,7 @@
     },
     {
       "date": "2026-07-10",
-      "maxPrice": 4900
+      "maxPrice": 6900
     }
   ],
   "briefing": "부추 시세가 최근 내려가는 흐름을 보이고 있어요. 구매 계획에 참고하시면 좋겠어요.",
