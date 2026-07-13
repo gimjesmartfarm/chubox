@@ -275,7 +275,7 @@ def main():
 
     result["history"] = history
 
-    # ── 지역별 최고가(4kg 환산, 비교 그래프용) ─────────────────────────
+    # ── 지역별 최고가(4kg 기준, 비교 그래프용) ─────────────────────────
     try:
         with open("price.json", "r", encoding="utf-8") as f:
             regions = json.load(f).get("regions", {})
@@ -284,13 +284,11 @@ def main():
 
     today_str = today.isoformat()
     for name, codes in REGION_MARKETS.items():
-        if regions.get(name, {}).get("date") == today_str:
-            continue  # 오늘 값 이미 확보 → 재호출 안 함
         price = fetch_region_max(codes, today_str)
         if price is not None:
             regions[name] = {"date": today_str, "maxPrice4kg": price}
-            print(f"[지역 {name}] {price}원 (4kg 환산)")
-        # 오늘 데이터 없으면(휴무) 이전 값 그대로 유지
+            print(f"[지역 {name}] {price}원")
+        # 오늘 데이터 없으면(휴무) 이전 값(다른 날짜 포함) 그대로 유지
 
     # 7일 넘게 갱신 안 된 지역은 제거 (너무 오래된 값 표시 방지)
     cutoff = (today - timedelta(days=7)).isoformat()
