@@ -38,7 +38,7 @@ def build_region_url(mrkt_cd: str, date_str: str) -> str:
 
 
 def fetch_region_max(codes, date_str, delay=0.15):
-    """지역(시장코드 묶음)의 4kg 환산 최고가. 수량 10 이상, kg 단위만 사용."""
+    """지역(시장코드 묶음)의 4kg 단위 최고가. 4kg 항목 + 수량 10 이상만 사용."""
     best = None
     for code in codes:
         try:
@@ -57,14 +57,14 @@ def fetch_region_max(codes, date_str, delay=0.15):
                 prc = float(x.get("scsbd_prc") or 0)
             except ValueError:
                 continue
-            # 수량 10 미만(튀는 값), kg 아닌 단위, 비정상 값 제외
-            if x.get("unit_nm") != "kg" or uq <= 0 or qty < 10 or prc <= 0:
+            # 4kg 단위 + 수량 10 이상만 후보로
+            if uq != 4 or qty < 10 or prc <= 0:
                 continue
-            p4 = prc * 4.0 / uq  # 4kg 기준 환산 (0.5kg→×8, 1kg→×4, 2kg→×2)
-            if best is None or p4 > best:
-                best = p4
+            if best is None or prc > best:
+                best = prc
         time.sleep(delay)
     return int(best) if best is not None else None
+
 
 def build_url(date_str: str) -> str:
     # serviceKey는 동작이 확인된 형태 그대로 사용 (인코딩하지 않음)
@@ -124,9 +124,9 @@ def build_history(today, days=7, max_lookback=30, delay=0.2):
                     prc = float(x.get("scsbd_prc") or 0)
                 except ValueError:
                     continue
-                if x.get("unit_nm") != "kg" or uq <= 0 or qty < 10 or prc <= 0:
+                if uq != 4 or qty < 10 or prc <= 0:
                     continue
-                candidates.append(prc * 4.0 / uq)
+                candidates.append(prc)
             if candidates:
                 history.append({"date": date_str, "maxPrice": int(max(candidates))})
         time.sleep(delay)  # 너무 빠른 연속 호출 방지
@@ -216,7 +216,7 @@ def main():
         if not items:
             continue
 
-        # 4kg 환산 가격 계산 + 수량 10 이상만 후보로 (단위: 0.5kg→×8, 1kg→×4, 2kg→×2, 4kg→×1)
+        # 4kg 단위 + 수량 10 이상인 항목만 후보로
         candidates = []
         for x in items:
             try:
@@ -225,24 +225,24 @@ def main():
                 prc = float(x.get("scsbd_prc") or 0)
             except ValueError:
                 continue
-            if x.get("unit_nm") != "kg" or uq <= 0 or qty < 10 or prc <= 0:
+            if uq != 4 or qty < 10 or prc <= 0:
                 continue
-            candidates.append((x, prc * 4.0 / uq))  # (원본 항목, 4kg 환산가)
+            candidates.append(x)
 
         if not candidates:
-            print(f"[{date_str}] 유효 항목 없음(수량<10 또는 단위 불일치), 건너뜀")
+            print(f"[{date_str}] 4kg·수량10이상 항목 없음, 건너뜀")
             continue
 
-        top_item, top_price4kg = max(candidates, key=lambda c: c[1])
+        top = max(candidates, key=lambda x: float(x.get("scsbd_prc", 0)))
         result = {
             "date": date_str,
-            "maxPrice": int(top_price4kg),  # 4kg 환산 최고가
-            "unitQty": 4,  # 항상 4kg 기준으로 표시
-            "unit": "kg",
-            "marketName": top_item.get("whsl_mrkt_nm", ""),
-            "itemName": top_item.get("corp_gds_item_nm", ""),
-            "variety": top_item.get("corp_gds_vrty_nm", ""),
-            "auctionAt": top_item.get("scsbd_dt", ""),
+            "maxPrice": int(float(top["scsbd_prc"])),
+            "unitQty": int(float(top.get("unit_qty") or 0)),
+            "unit": top.get("unit_nm", ""),
+            "marketName": top.get("whsl_mrkt_nm", ""),
+            "itemName": top.get("corp_gds_item_nm", ""),
+            "variety": top.get("corp_gds_vrty_nm", ""),
+            "auctionAt": top.get("scsbd_dt", ""),
             "updatedAt": now_iso,
         }
         break
