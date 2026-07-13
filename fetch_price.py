@@ -11,6 +11,60 @@ BASE = "https://apis.data.go.kr/B552845/katRealTime2/trades2"
 KST = timezone(timedelta(hours=9))
 MAX_LOOKBACK_DAYS = 14  # 경매가 없는 날이면 최대 14일 전까지 거슬러 올라가며 탐색
 
+# 지역별 도매시장 (비교 그래프용) — 두 시장인 지역은 높은 가격 채택
+REGION_MARKETS = {
+    "서울": ["110001", "110008"],
+    "인천": ["230001", "230003"],
+    "대구": ["220001"],
+    "대전": ["250001", "250003"],
+    "부산": ["210009", "210001"],
+    "광주": ["240001", "240004"],
+    "전주": ["350101"],
+    "익산": ["350301"],
+}
+
+
+def build_region_url(mrkt_cd: str, date_str: str) -> str:
+    # 지역 비교용: corp_cd, gds_sclsf_cd 조건 없이 부추(중분류) 전체 조회
+    return (
+        f"{BASE}?serviceKey={SERVICE_KEY}"
+        "&numOfRows=1000"
+        f"&cond[whsl_mrkt_cd::EQ]={mrkt_cd}"
+        "&cond[gds_lclsf_cd::EQ]=10"
+        "&cond[gds_mclsf_cd::EQ]=10"
+        f"&cond[trd_clcln_ymd::EQ]={date_str}"
+        "&returnType=JSON"
+    )
+
+
+def fetch_region_max(codes, date_str, delay=0.15):
+    """지역(시장코드 묶음)의 4kg 환산 최고가. 수량 10 이상, kg 단위만 사용."""
+    best = None
+    for code in codes:
+        try:
+            req = urllib.request.Request(
+                build_region_url(code, date_str), headers={"User-Agent": "Mozilla/5.0"}
+            )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                items = extract_items(json.loads(resp.read().decode("utf-8")))
+        except Exception as e:
+            print(f"[지역 {code} {date_str}] 호출 실패: {e}")
+            continue
+        for x in items:
+            try:
+                uq = float(x.get("unit_qty") or 0)
+                qty = float(x.get("qty") or 0)
+                prc = float(x.get("scsbd_prc") or 0)
+            except ValueError:
+                continue
+            # 수량 10 미만(튀는 값), kg 아닌 단위, 비정상 값 제외
+            if x.get("unit_nm") != "kg" or uq <= 0 or qty < 10 or prc <= 0:
+                continue
+            p4 = prc * 4.0 / uq  # 4kg 기준 환산 (0.5kg→×8, 1kg→×4, 2kg→×2)
+            if best is None or p4 > best:
+                best = p4
+        time.sleep(delay)
+    return int(best) if best is not None else None
 
 def build_url(date_str: str) -> str:
     # serviceKey는 동작이 확인된 형태 그대로 사용 (인코딩하지 않음)
@@ -200,6 +254,30 @@ def main():
         history = history[-7:]
 
     result["history"] = history
+
+    # ── 지역별 최고가(4kg 환산, 비교 그래프용) ─────────────────────────
+    try:
+        with open("price.json", "r", encoding="utf-8") as f:
+            regions = json.load(f).get("regions", {})
+    except (FileNotFoundError, json.JSONDecodeError):
+        regions = {}
+
+    today_str = today.isoformat()
+    for name, codes in REGION_MARKETS.items():
+        if regions.get(name, {}).get("date") == today_str:
+            continue  # 오늘 값 이미 확보 → 재호출 안 함
+        price = fetch_region_max(codes, today_str)
+        if price is not None:
+            regions[name] = {"date": today_str, "maxPrice4kg": price}
+            print(f"[지역 {name}] {price}원 (4kg 환산)")
+        # 오늘 데이터 없으면(휴무) 이전 값 그대로 유지
+
+    # 7일 넘게 갱신 안 된 지역은 제거 (너무 오래된 값 표시 방지)
+    cutoff = (today - timedelta(days=7)).isoformat()
+    regions = {k: v for k, v in regions.items() if v.get("date", "") >= cutoff}
+
+    result["regions"] = regions
+    # ──────────────────────────────────────────────────────────────────
 
     # ── 브리핑: 오늘 도매가가 있고, 오늘자 브리핑이 아직 없을 때만 생성 ──
     prev_briefing = ""
