@@ -82,6 +82,24 @@
               "stroke-linejoin='round' stroke-linecap='round' vector-effect='non-scaling-stroke'/>";
           }
 
+          // 지역별 상대가 비교 박스 (PC 전용, 구체 가격 없이 높낮이만)
+          const REGION_ORDER = ["익산","서울","인천","대구","대전","부산","광주","전주"];
+          const regions = d.regions || {};
+          const rnames = REGION_ORDER.filter(n => regions[n] && regions[n].maxPrice4kg > 0);
+          if (rnames.length >= 2 && window.matchMedia("(min-width: 901px)").matches) {
+            const maxP = Math.max(...rnames.map(n => regions[n].maxPrice4kg));
+            const bars = document.getElementById("regionBars");
+            bars.innerHTML = rnames.map(n => {
+              const f = Math.max(0.1, regions[n].maxPrice4kg / maxP);
+              const me = n === "익산" ? " me" : "";
+              return "<div class='rb" + me + "'>"
+                   +   "<div class='bar' style='height:calc((100% - 16px) * " + f.toFixed(3) + ")'></div>"
+                   +   "<div class='lb'>" + n + "</div>"
+                   + "</div>";
+            }).join("");
+            document.getElementById("regionBox").style.display = "flex";
+          }
+
           document.getElementById("priceBox").style.display = "flex";
 
           if (d.briefing) {

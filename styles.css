@@ -67,7 +67,7 @@
     .price-box {
       position: relative;
       display: flex; flex-direction: column; align-items: center;
-      width: 100%; max-width: 290px; margin: 44px auto 0;
+      width: 100%; max-width: 290px;
       box-sizing: border-box; padding: 22px 26px;
       background: #fff; border: 1px solid var(--line); border-radius: 18px;
       box-shadow: 0 2px 14px rgba(0,0,0,0.05);
@@ -80,6 +80,56 @@
       width: 100%; height: 40%;
       pointer-events: none; z-index: 0;
     }
+
+    /* 가격카드 + 뒤 배경 그래프를 겹치는 무대 */
+    .price-stage { position: relative; }
+
+    /* 가격박스 + 지역비교박스를 담는 행 (PC: 좌우, 모바일: 가격만) */
+    .price-row {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 16px;
+      width: 100%; max-width: 980px; margin: 44px auto 0;
+    }
+    .price-row .price-box { margin: 0; }   /* 기존 margin: 44px auto 0 대신 행이 간격 담당 */
+
+    /* 지역 비교 박스 (가격박스와 같은 톤, PC 전용) */
+    .region-box {
+      display: none;                        /* JS가 데이터 있을 때 flex로 켬 */
+      flex: 1 1 0; min-width: 0;
+      flex-direction: column;
+      padding: 20px 20px 16px;
+      background: #fff; border: 1px solid var(--line); border-radius: 18px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+    }
+    .region-box-label {
+      font-size: 13px; font-weight: 600; color: var(--text-2);
+      text-align: center; margin-bottom: 14px;
+    }
+    .region-bars {
+      flex: 1;
+      display: flex; align-items: flex-end; gap: 4%;
+      min-height: 120px;
+    }
+    .region-bars .rb { position: relative; flex: 1; height: 100%; }
+    .region-bars .rb .bar {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      bottom: 18px; width: 70%; max-width: 26px;
+      border-radius: 6px 6px 0 0;
+      background: rgba(29,122,62,0.14);
+    }
+    .region-bars .rb .lb {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      text-align: center; font-size: 11px; color: var(--text-2);
+    }
+    .region-bars .rb.me .bar { background: var(--green); }
+    .region-bars .rb.me .lb  { color: var(--green); font-weight: 700; }
+
+    /* 모바일: 지역 박스 숨기고 가격박스만 */
+    @media (max-width: 900px) {
+      .region-box { display: none !important; }
+      .price-row { max-width: 290px; }
+    }
+
     /* 그래프 위 내용은 항상 위로 */
     .price-box > *:not(.trend) { position: relative; z-index: 1; }
 

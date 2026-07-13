@@ -116,10 +116,19 @@ def build_history(today, days=7, max_lookback=30, delay=0.2):
             print(f"[history {date_str}] 호출 실패: {e}")
             continue
         if items:
-            items = [x for x in items if float(x.get("unit_qty") or 0) == 4]
-        if items:
-            top = max(items, key=lambda x: float(x.get("scsbd_prc", 0)))
-            history.append({"date": date_str, "maxPrice": int(float(top["scsbd_prc"]))})
+            candidates = []
+            for x in items:
+                try:
+                    uq = float(x.get("unit_qty") or 0)
+                    qty = float(x.get("qty") or 0)
+                    prc = float(x.get("scsbd_prc") or 0)
+                except ValueError:
+                    continue
+                if x.get("unit_nm") != "kg" or uq <= 0 or qty < 10 or prc <= 0:
+                    continue
+                candidates.append(prc * 4.0 / uq)
+            if candidates:
+                history.append({"date": date_str, "maxPrice": int(max(candidates))})
         time.sleep(delay)  # 너무 빠른 연속 호출 방지
     history.reverse()  # 과거 -> 최신 순
     return history
@@ -207,23 +216,34 @@ def main():
         if not items:
             continue
 
-        # 4kg 단위 항목만 사용
-        items = [x for x in items if float(x.get("unit_qty") or 0) == 4]
-        if not items:
-            print(f"[{date_str}] 4kg 단위 항목 없음, 건너뜀")
+        # 4kg 환산 가격 계산 + 수량 10 이상만 후보로 (단위: 0.5kg→×8, 1kg→×4, 2kg→×2, 4kg→×1)
+        candidates = []
+        for x in items:
+            try:
+                uq = float(x.get("unit_qty") or 0)
+                qty = float(x.get("qty") or 0)
+                prc = float(x.get("scsbd_prc") or 0)
+            except ValueError:
+                continue
+            if x.get("unit_nm") != "kg" or uq <= 0 or qty < 10 or prc <= 0:
+                continue
+            candidates.append((x, prc * 4.0 / uq))  # (원본 항목, 4kg 환산가)
+
+        if not candidates:
+            print(f"[{date_str}] 유효 항목 없음(수량<10 또는 단위 불일치), 건너뜀")
             continue
 
-        top = max(items, key=lambda x: float(x.get("scsbd_prc", 0)))
+        top_item, top_price4kg = max(candidates, key=lambda c: c[1])
         result = {
             "date": date_str,
-            "maxPrice": int(float(top["scsbd_prc"])),  # '.' 이하 버림
-            "unitQty": int(float(top.get("unit_qty") or 0)),  # 단위물량 (예: 4)
-            "unit": top.get("unit_nm", ""),                   # 단위명 (예: kg)
-            "marketName": top.get("whsl_mrkt_nm", ""),
-            "itemName": top.get("corp_gds_item_nm", ""),
-            "variety": top.get("corp_gds_vrty_nm", ""),
-            "auctionAt": top.get("scsbd_dt", ""),  # 최고가 항목의 낙찰일시
-            "updatedAt": now_iso,                  # 데이터를 가져온(스크립트 실행) 시각
+            "maxPrice": int(top_price4kg),  # 4kg 환산 최고가
+            "unitQty": 4,  # 항상 4kg 기준으로 표시
+            "unit": "kg",
+            "marketName": top_item.get("whsl_mrkt_nm", ""),
+            "itemName": top_item.get("corp_gds_item_nm", ""),
+            "variety": top_item.get("corp_gds_vrty_nm", ""),
+            "auctionAt": top_item.get("scsbd_dt", ""),
+            "updatedAt": now_iso,
         }
         break
 
