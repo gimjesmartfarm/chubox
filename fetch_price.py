@@ -11,6 +11,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")  # 없으면 브리핑 생략
 BASE = "https://apis.data.go.kr/B552845/katRealTime2/trades2"
 KST = timezone(timedelta(hours=9))
 MAX_LOOKBACK_DAYS = 14  # 경매가 없는 날이면 최대 14일 전까지 거슬러 올라가며 탐색
+ABS_CAP = 60000  # 부추 4kg 도매가 절대 상한 (입력 오류 방지)
 
 # 지역별 도매시장 (비교 그래프용) — 두 시장인 지역은 높은 가격 채택
 REGION_MARKETS = {
@@ -24,12 +25,14 @@ REGION_MARKETS = {
     "익산": ["350301"],
 }
 
-def sane_cap(history, mult=5.0, floor_ref=8000):
-    """최근 history 중앙값 기준 상한. 이 값을 넘으면 입력 오류로 간주."""
-    vals = [h["maxPrice"] for h in history if h.get("maxPrice")]
-    if not vals:
-        return None                      # 이력 없으면 필터 미적용
-    return max(statistics.median(vals), floor_ref) * mult
+def pick_max_price(prices, mult=3.0, floor_ref=8000):
+    """같은 날 후보들의 중앙값·절대상한 기준으로 이상치를 제외한 뒤 최고가 반환."""
+    prices = [p for p in prices if 0 < p <= ABS_CAP]
+    if not prices:
+        return None
+    cap = max(statistics.median(prices), floor_ref) * mult
+    kept = [p for p in prices if p <= cap]
+    return max(kept) if kept else None
 
 def build_region_url(mrkt_cd: str, date_str: str) -> str:
     # 지역 비교용: corp_cd, gds_sclsf_cd 조건 없이 부추(중분류) 전체 조회
@@ -45,8 +48,7 @@ def build_region_url(mrkt_cd: str, date_str: str) -> str:
 
 
 def fetch_region_max(codes, date_str, delay=0.15):
-    """지역(시장코드 묶음)의 4kg 단위 최고가. 4kg 항목 + 수량 10 이상만 사용."""
-    best = None
+    prices = []
     for code in codes:
         try:
             req = urllib.request.Request(
@@ -59,17 +61,16 @@ def fetch_region_max(codes, date_str, delay=0.15):
             continue
         for x in items:
             try:
-                uq = float(x.get("unit_qty") or 0)
+                uq  = float(x.get("unit_qty") or 0)
                 qty = float(x.get("qty") or 0)
                 prc = float(x.get("scsbd_prc") or 0)
             except ValueError:
                 continue
-            # 4kg 단위 + 수량 10 이상만 후보로
             if uq != 4 or qty < 10 or prc <= 0:
                 continue
-            if best is None or prc > best:
-                best = prc
+            prices.append(prc)
         time.sleep(delay)
+    best = pick_max_price(prices)
     return int(best) if best is not None else None
 
 
@@ -135,7 +136,9 @@ def build_history(today, days=7, max_lookback=30, delay=0.2):
                     continue
                 candidates.append(prc)
             if candidates:
-                history.append({"date": date_str, "maxPrice": int(max(candidates))})
+                best = pick_max_price(candidates)
+                if best is not None:
+                    history.append({"date": date_str, "maxPrice": int(best)})
         time.sleep(delay)  # 너무 빠른 연속 호출 방지
     history.reverse()  # 과거 -> 최신 순
     return history
@@ -210,14 +213,6 @@ def main():
     now_iso = datetime.now(KST).isoformat(timespec="seconds")
     result = None
 
-    # 상한 계산용으로 기존 history를 먼저 읽음
-    try:
-        with open("price.json", "r", encoding="utf-8") as f:
-            history = json.load(f).get("history", [])
-    except (FileNotFoundError, json.JSONDecodeError):
-        history = []
-    cap = sane_cap(history)
-
     for back in range(0, MAX_LOOKBACK_DAYS + 1):
         date_str = (today - timedelta(days=back)).isoformat()
         try:
@@ -235,15 +230,12 @@ def main():
         candidates = []
         for x in items:
             try:
-                uq = float(x.get("unit_qty") or 0)
+                uq  = float(x.get("unit_qty") or 0)
                 qty = float(x.get("qty") or 0)
                 prc = float(x.get("scsbd_prc") or 0)
             except ValueError:
                 continue
             if uq != 4 or qty < 10 or prc <= 0:
-                continue
-            if cap is not None and prc > cap:
-                print(f"[{date_str}] 이상치 제외: {int(prc)}원 (상한 {int(cap)}원)")
                 continue
             candidates.append(x)
 
@@ -251,10 +243,15 @@ def main():
             print(f"[{date_str}] 4kg·수량10이상 항목 없음, 건너뜀")
             continue
 
-        top = max(candidates, key=lambda x: float(x.get("scsbd_prc", 0)))
+        best_price = pick_max_price([float(x["scsbd_prc"]) for x in candidates])
+        if best_price is None:
+            print(f"[{date_str}] 유효 가격 없음, 건너뜀")
+            continue
+
+        top = next(x for x in candidates if float(x["scsbd_prc"]) == best_price)
         result = {
             "date": date_str,
-            "maxPrice": int(float(top["scsbd_prc"])),
+            "maxPrice": int(best_price),
             "unitQty": int(float(top.get("unit_qty") or 0)),
             "unit": top.get("unit_nm", ""),
             "marketName": top.get("whsl_mrkt_nm", ""),
