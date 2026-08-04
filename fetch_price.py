@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import statistics
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -23,6 +24,12 @@ REGION_MARKETS = {
     "익산": ["350301"],
 }
 
+def sane_cap(history, mult=5.0, floor_ref=8000):
+    """최근 history 중앙값 기준 상한. 이 값을 넘으면 입력 오류로 간주."""
+    vals = [h["maxPrice"] for h in history if h.get("maxPrice")]
+    if not vals:
+        return None                      # 이력 없으면 필터 미적용
+    return max(statistics.median(vals), floor_ref) * mult
 
 def build_region_url(mrkt_cd: str, date_str: str) -> str:
     # 지역 비교용: corp_cd, gds_sclsf_cd 조건 없이 부추(중분류) 전체 조회
@@ -203,6 +210,14 @@ def main():
     now_iso = datetime.now(KST).isoformat(timespec="seconds")
     result = None
 
+    # 상한 계산용으로 기존 history를 먼저 읽음
+    try:
+        with open("price.json", "r", encoding="utf-8") as f:
+            history = json.load(f).get("history", [])
+    except (FileNotFoundError, json.JSONDecodeError):
+        history = []
+    cap = sane_cap(history)
+
     for back in range(0, MAX_LOOKBACK_DAYS + 1):
         date_str = (today - timedelta(days=back)).isoformat()
         try:
@@ -226,6 +241,9 @@ def main():
             except ValueError:
                 continue
             if uq != 4 or qty < 10 or prc <= 0:
+                continue
+            if cap is not None and prc > cap:
+                print(f"[{date_str}] 이상치 제외: {int(prc)}원 (상한 {int(cap)}원)")
                 continue
             candidates.append(x)
 
