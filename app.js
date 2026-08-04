@@ -90,11 +90,12 @@
             const maxP = Math.max(...rnames.map(n => regions[n].maxPrice4kg));
             const bars = document.getElementById("regionBars");
             bars.innerHTML = rnames.map(n => {
-              const f = Math.max(0.1, regions[n].maxPrice4kg / maxP);
+              const p = regions[n].maxPrice4kg;
+              const f = Math.max(0.1, p / maxP);
               const me = n === "익산" ? " me" : "";
               return "<div class='rb" + me + "'>"
-                   +   "<div class='bar' style='height:calc((100% - 16px) * " + f.toFixed(3) + ")'></div>"
-                   +   "<div class='lb'>" + n + "</div>"
+                   +   "<div class='bar' style='height:calc((100% - 30px) * " + f.toFixed(3) + ")'></div>"
+                   +   "<div class='lb'>" + n + "<span class='rp'>" + won(p) + "</span></div>"
                    + "</div>";
             }).join("");
             document.getElementById("regionBox").style.display = "flex";

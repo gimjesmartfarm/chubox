@@ -113,14 +113,20 @@
     .region-bars .rb { position: relative; flex: 1; height: 100%; }
     .region-bars .rb .bar {
       position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: 18px; width: 70%; max-width: 26px;
+      bottom: 32px; width: 70%; max-width: 26px;
       border-radius: 6px 6px 0 0;
       background: rgba(29,122,62,0.14);
     }
     .region-bars .rb .lb {
       position: absolute; left: 0; right: 0; bottom: 0;
       text-align: center; font-size: 11px; color: var(--text-2);
+      line-height: 1.35;
     }
+    .region-bars .rb .lb .rp {
+      display: block; font-size: 10px; color: #9ca3af;
+      white-space: nowrap;
+    }
+    .region-bars .rb.me .lb .rp { color: var(--green); font-weight: 600; }
     .region-bars .rb.me .bar { background: var(--green); }
     .region-bars .rb.me .lb  { color: var(--green); font-weight: 700; }
 
