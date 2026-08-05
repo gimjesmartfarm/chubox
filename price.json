@@ -1,7 +1,13 @@
 {
   "date": "2026-08-06",
-  "maxPrice": null,
-  "updatedAt": "2026-08-06T07:30:47+09:00",
+  "maxPrice": 12500,
+  "unitQty": 4,
+  "unit": "kg",
+  "marketName": "익산",
+  "itemName": "부추",
+  "variety": "일반부추",
+  "auctionAt": "2026-08-06 05:49:18",
+  "updatedAt": "2026-08-06T07:45:39+09:00",
   "history": [
     {
       "date": "2026-07-29",
