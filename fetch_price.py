@@ -10,7 +10,7 @@ SERVICE_KEY = os.environ["KAT_SERVICE_KEY"]
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")  # 없으면 브리핑 생략
 BASE = "https://apis.data.go.kr/B552845/katRealTime2/trades2"
 KST = timezone(timedelta(hours=9))
-MAX_LOOKBACK_DAYS = 14  # 경매가 없는 날이면 최대 14일 전까지 거슬러 올라가며 탐색
+MAX_LOOKBACK_DAYS = 5  # 경매가 없는 날이면 최대 5일 전까지 거슬러 올라가며 탐색
 ABS_CAP = 60000  # 부추 4kg 도매가 절대 상한 (입력 오류 방지)
 
 # 지역별 도매시장 (비교 그래프용) — 두 시장인 지역은 높은 가격 채택
@@ -222,6 +222,13 @@ def main():
             continue
 
         items = extract_items(data)
+        if not items:
+            # 한도 초과 등 에러 응답이면 사유를 로그에 남김
+            hdr = data.get("response", {}).get("header", {})
+            if hdr.get("resultCode") not in ("0", "00", None):
+                print(
+                    f"[{date_str}] API 응답 이상: {hdr.get('resultCode')} {hdr.get('resultMsg')}"
+                )
         print(f"[{date_str}] 건수: {len(items)}")
         if not items:
             continue
@@ -263,11 +270,32 @@ def main():
         break
 
     if result is None:
-        result = {
-            "date": today.isoformat(),
-            "maxPrice": None,
-            "updatedAt": now_iso,
-        }
+        # 조회 실패/데이터 없음 → 이전 price.json 값을 그대로 유지 (null로 덮어쓰지 않음)
+        try:
+            with open("price.json", "r", encoding="utf-8") as f:
+                prev = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            prev = {}
+
+        if prev.get("maxPrice") is not None:
+            print("조회 실패 → 이전 가격 유지:", prev.get("date"), prev.get("maxPrice"))
+            result = {
+                "date": prev.get("date"),
+                "maxPrice": prev.get("maxPrice"),
+                "unitQty": prev.get("unitQty", 4),
+                "unit": prev.get("unit", "kg"),
+                "marketName": prev.get("marketName", ""),
+                "itemName": prev.get("itemName", ""),
+                "variety": prev.get("variety", ""),
+                "auctionAt": prev.get("auctionAt", ""),
+                "updatedAt": now_iso,
+            }
+        else:
+            result = {
+                "date": today.isoformat(),
+                "maxPrice": None,
+                "updatedAt": now_iso,
+            }
 
     # ── history: 비어있으면 과거치로 백필, 이후엔 오늘치만 추가 ──────────
     try:
@@ -297,8 +325,12 @@ def main():
     except (FileNotFoundError, json.JSONDecodeError):
         regions = {}
 
+    hour_kst = datetime.now(KST).hour
     today_str = today.isoformat()
     for name, codes in REGION_MARKETS.items():
+        # 오늘 값이 이미 있고 9시가 지났으면 재조회 안 함 (호출 절약)
+        if regions.get(name, {}).get("date") == today_str and hour_kst >= 9:
+            continue
         price = fetch_region_max(codes, today_str)
         if price is not None:
             regions[name] = {"date": today_str, "maxPrice4kg": price}
