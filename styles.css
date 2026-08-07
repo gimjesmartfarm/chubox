@@ -108,12 +108,12 @@
     .region-bars {
       flex: 1;
       display: flex; align-items: flex-end; gap: 4%;
-      min-height: 120px;
+      min-height: 150px;
     }
     .region-bars .rb { position: relative; flex: 1; height: 100%; }
     .region-bars .rb .bar {
       position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: 32px; width: 70%; max-width: 26px;
+      bottom: 46px; width: 70%; max-width: 26px;
       border-radius: 6px 6px 0 0;
       background: rgba(29,122,62,0.14);
     }
@@ -122,6 +122,11 @@
       text-align: center; font-size: 11px; color: var(--text-2);
       line-height: 1.35;
     }
+    .region-bars .rb .lb .rd {
+      display: block; font-size: 9px; color: #9ca3af;
+      white-space: nowrap; letter-spacing: 0;
+    }
+    .region-bars .rb.me .lb .rd { color: var(--green); font-weight: 500; }
     .region-bars .rb .lb .rp {
       display: block; font-size: 10px; color: #9ca3af;
       white-space: nowrap;

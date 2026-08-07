@@ -91,11 +91,15 @@
             const bars = document.getElementById("regionBars");
             bars.innerHTML = rnames.map(n => {
               const p = regions[n].maxPrice4kg;
+              const dt = (regions[n].date || "").slice(5).replace("-", "/");  // 2026-08-07 → 08/07
               const f = Math.max(0.1, p / maxP);
               const me = n === "익산" ? " me" : "";
               return "<div class='rb" + me + "'>"
-                   +   "<div class='bar' style='height:calc((100% - 30px) * " + f.toFixed(3) + ")'></div>"
-                   +   "<div class='lb'>" + n + "<span class='rp'>" + won(p) + "</span></div>"
+                   +   "<div class='bar' style='height:calc((100% - 44px) * " + f.toFixed(3) + ")'></div>"
+                   +   "<div class='lb'>" + n
+                   +     "<span class='rd'>" + dt + "</span>"
+                   +     "<span class='rp'>" + won(p) + "</span>"
+                   +   "</div>"
                    + "</div>";
             }).join("");
             document.getElementById("regionBox").style.display = "flex";
