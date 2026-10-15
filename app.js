@@ -10,6 +10,8 @@
       return { p4, p2 };
     }
 
+    let regionData = null;
+
     (async function(){
       try {
         const res = await fetch("price.json?t=" + Date.now());
@@ -82,27 +84,14 @@
               "stroke-linejoin='round' stroke-linecap='round' vector-effect='non-scaling-stroke'/>";
           }
 
-          // 지역별 상대가 비교 박스 (PC 전용, 구체 가격 없이 높낮이만)
+          // 지역별 도매가 범위 비교 (10박스 이상 최저~최고 상자 + 10박스 미만 이상치)
           const REGION_ORDER = ["익산","서울","인천","대구","대전","부산","광주","전주"];
           const regions = d.regions || {};
           const rnames = REGION_ORDER.filter(n => regions[n] && regions[n].maxPrice4kg > 0);
-          if (rnames.length >= 2 && window.matchMedia("(min-width: 901px)").matches) {
-            const maxP = Math.max(...rnames.map(n => regions[n].maxPrice4kg));
-            const bars = document.getElementById("regionBars");
-            bars.innerHTML = rnames.map(n => {
-              const p = regions[n].maxPrice4kg;
-              const dt = (regions[n].date || "").slice(5).replace("-", "/");  // 2026-08-07 → 08/07
-              const f = Math.max(0.1, p / maxP);
-              const me = n === "익산" ? " me" : "";
-              return "<div class='rb" + me + "'>"
-                   +   "<div class='bar' style='height:calc((100% - 44px) * " + f.toFixed(3) + ")'></div>"
-                   +   "<div class='lb'>" + n
-                   +     "<span class='rd'>" + dt + "</span>"
-                   +     "<span class='rp'>" + won(p) + "</span>"
-                   +   "</div>"
-                   + "</div>";
-            }).join("");
+          if (rnames.length >= 2) {
             document.getElementById("regionBox").style.display = "flex";
+            regionData = { regions, rnames };   // 가격박스까지 표시된 뒤 그림 (높이 확정 후)
+            setupFlip();
           }
 
           document.getElementById("priceBox").style.display = "flex";
@@ -114,9 +103,87 @@
           } else {
             document.getElementById("trend").style.display = "none";   // 브리핑 없으면 숨김
           }
+
+          if (regionData) {
+            const draw = () => renderRegions(regionData.regions, regionData.rnames);
+            draw();
+            // 박스 크기가 바뀌면(화면 회전·리사이즈) 다시 그림
+            let rt, lastW = 0, lastH = 0;
+            new ResizeObserver(([e]) => {
+              const { width, height } = e.contentRect;
+              if (Math.abs(width - lastW) < 1 && Math.abs(height - lastH) < 1) return;
+              lastW = width; lastH = height;
+              clearTimeout(rt); rt = setTimeout(draw, 100);
+            }).observe(document.getElementById("regionBox"));
+          }
         }
       } catch(e){ /* 가격 정보 없으면 조용히 숨김 */ }
     })();
+
+    // ── 전국 도매가 비교: 가로 범위 막대 (10박스 이상 거래 최저~최고) ──
+    function renderRegions(regions, rnames){
+      const bars = document.getElementById("regionBars");
+      const rows = rnames.map(n => {
+        const r = regions[n], max = r.maxPrice4kg;
+        return { n, r, max, min: r.minPrice4kg > 0 ? r.minPrice4kg : max };   // 구버전 데이터 호환
+      });
+      const lo = Math.min(...rows.map(x => x.min));
+      const hi = Math.max(...rows.map(x => x.max));
+
+      // 모바일처럼 좁으면 가격은 천원 단위, kg는 숫자만 (단위는 제목에)
+      const compact = bars.clientWidth < 360;
+      document.getElementById("regionTitle").textContent =
+        "전국 도매가 비교 (4kg 기준" + (compact ? " · 천원 · kg)" : ")");
+      const fp = v => compact ? (v / 1000).toFixed(v % 1000 ? 1 : 0) : v.toLocaleString("ko-KR");
+      const fk = v => v.toLocaleString("ko-KR") + (compact ? "" : "kg");
+
+      bars.innerHTML = rows.map(x =>
+        "<div class='rr" + (x.n === "익산" ? " me" : "") + "'>"
+        + "<div class='nm'>" + x.n + "<small>" + (x.r.date || "").slice(5).replace("-", "/") + "</small></div>"
+        + "<div class='tr'></div>"
+        + "<div class='kg'>" + (x.r.kg != null ? fk(x.r.kg) : "") + "</div>"
+        + "</div>").join("");
+
+      // 트랙 폭을 재서 픽셀 배치 — 양끝에 가격 라벨 자리 확보
+      const trs = bars.querySelectorAll(".tr");
+      // 위치는 calc(%)로 지정 → 카드 폭이 바뀌는 애니메이션 중에도 자연스럽게 늘어남
+      const PAD = compact ? 26 : 46;
+      const fr  = v => hi === lo ? 0.5 : (v - lo) / (hi - lo);
+      const at  = (v, off) => "calc(" + (PAD + (off || 0)) + "px + (100% - " + PAD * 2 + "px) * " + fr(v).toFixed(4) + ")";
+
+      rows.forEach((x, i) => {
+        const w = "calc((100% - " + PAD * 2 + "px) * " + (fr(x.max) - fr(x.min)).toFixed(4) + ")";
+        let h = "<div class='rg' style='left:" + at(x.min) + ";width:" + w + "'></div>"
+              + "<i class='pt' style='left:" + at(x.max) + "'></i>"
+              + "<span class='vl' style='left:" + at(x.max, 8) + "'>" + fp(x.max) + "</span>";
+        if (x.min !== x.max)
+          h += "<i class='pt' style='left:" + at(x.min) + "'></i>"
+             + "<span class='vl l' style='left:" + at(x.min, -8) + "'>" + fp(x.min) + "</span>";
+        trs[i].innerHTML = h;
+      });
+    }
+
+    // ── 모바일: 카드 세 번 탭 → 뒤집기 ─────────────────────────────
+    function setupFlip(){
+      const flip = document.getElementById("flip");
+      const row  = flip.closest(".price-row");
+      const mq   = window.matchMedia("(max-width: 900px)");
+      let count = 0, last = 0;
+      flip.addEventListener("click", () => {
+        if (!mq.matches) return;
+        const now = Date.now();
+        count = (now - last < 500) ? count + 1 : 1;
+        last = now;
+        if (count >= 3) {
+          count = 0;
+          const on = flip.classList.toggle("flipped");
+          row.classList.toggle("wide", on);       // 뒤집히면 사진 폭까지 넓어짐
+        }
+      });
+      mq.addEventListener("change", e => {
+        if (!e.matches) { flip.classList.remove("flipped"); row.classList.remove("wide"); }
+      });
+    }
 
     // 지도 링크 (네이버 지도 검색)
     (function(){

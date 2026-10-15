@@ -105,40 +105,81 @@
       font-size: 13px; font-weight: 600; color: var(--text-2);
       text-align: center; margin-bottom: 14px;
     }
+    /* 가로 범위 막대: 지역별 한 줄, 최저●━━●최고 */
     .region-bars {
       flex: 1;
-      display: flex; align-items: flex-end; gap: 4%;
-      min-height: 150px;
+      display: flex; flex-direction: column; justify-content: space-evenly;
+      min-height: 220px;
     }
-    .region-bars .rb { position: relative; flex: 1; height: 100%; }
-    .region-bars .rb .bar {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: 46px; width: 70%; max-width: 26px;
-      border-radius: 6px 6px 0 0;
-      background: rgba(29,122,62,0.14);
+    .region-bars .rr {
+      display: grid; grid-template-columns: 40px 1fr 62px; column-gap: 8px;
+      align-items: center; height: 30px; padding: 0 6px; border-radius: 8px;
     }
-    .region-bars .rb .lb {
-      position: absolute; left: 0; right: 0; bottom: 0;
-      text-align: center; font-size: 11px; color: var(--text-2);
-      line-height: 1.35;
+    .region-bars .nm { font-size: 12px; color: var(--text-2); text-align: right; line-height: 1.1; }
+    .region-bars .nm small { display: block; font-size: 9px; color: #9ca3af; }
+    .region-bars .tr { position: relative; height: 100%; }
+    .region-bars .tr::before {
+      content: ""; position: absolute; left: 0; right: 0; top: 50%;
+      border-top: 1px dashed #eceef1;
     }
-    .region-bars .rb .lb .rd {
-      display: block; font-size: 9px; color: #9ca3af;
-      white-space: nowrap; letter-spacing: 0;
+    .region-bars .rg {
+      position: absolute; top: 50%; height: 6px; margin-top: -3px;
+      border-radius: 3px; background: rgba(29,122,62,0.22);
     }
-    .region-bars .rb.me .lb .rd { color: var(--green); font-weight: 500; }
-    .region-bars .rb .lb .rp {
-      display: block; font-size: 10px; color: #9ca3af;
-      white-space: nowrap;
+    .region-bars .pt {
+      position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px;
+      border-radius: 50%; background: #9cc5ab;
     }
-    .region-bars .rb.me .lb .rp { color: var(--green); font-weight: 600; }
-    .region-bars .rb.me .bar { background: var(--green); }
-    .region-bars .rb.me .lb  { color: var(--green); font-weight: 700; }
+    .region-bars .vl {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-size: 10px; color: #9ca3af; white-space: nowrap; letter-spacing: -0.02em;
+    }
+    .region-bars .vl.l { transform: translate(-100%, -50%); }
+    .region-bars .kg { font-size: 10px; color: #9ca3af; text-align: right; white-space: nowrap; }
+    .region-bars .rr.me { background: rgba(29,122,62,0.05); }
+    .region-bars .rr.me .nm,
+    .region-bars .rr.me .nm small,
+    .region-bars .rr.me .vl,
+    .region-bars .rr.me .kg { color: var(--green); font-weight: 700; }
+    .region-bars .rr.me .rg { background: rgba(29,122,62,0.45); }
+    .region-bars .rr.me .pt { background: var(--green); }
 
-    /* 모바일: 지역 박스 숨기고 가격박스만 */
+    /* PC: 뒤집기 래퍼는 레이아웃에 관여하지 않음 → 두 박스가 좌우로 */
+    .flip, .flip-inner { display: contents; }
+
+    /* 모바일: 한 자리에 두 박스를 겹쳐 놓고, 세 번 탭하면 뒤집힘 */
     @media (max-width: 900px) {
-      .region-box { display: none !important; }
-      .price-row { max-width: 290px; }
+      /* .reveal의 transition에 덮이지 않도록 선택자를 한 단계 더 구체적으로 */
+      .price-row.reveal {
+        max-width: 290px;
+        transition: opacity .8s ease, transform .8s ease,
+                    max-width .7s cubic-bezier(.4,.2,.2,1);
+      }
+      /* 아래 사진과 같은 폭. 980px이 아니라 실제 폭(100%)을 목표로 해야 줄어들 때 지연이 없음 */
+      .price-row.reveal.wide { max-width: min(980px, 100%); }
+      .flip {
+        display: block; width: 100%;
+        perspective: 1200px;
+        -webkit-user-select: none; user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;          /* 더블탭 확대 방지 */
+      }
+      .flip-inner {
+        display: grid; width: 100%;
+        transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+        transition: transform .7s cubic-bezier(.4,.2,.2,1);
+      }
+      .flip.flipped .flip-inner { transform: rotateY(180deg); }
+      .flip-inner > .price-box,
+      .flip-inner > .region-box {
+        grid-area: 1 / 1;
+        max-width: none; margin: 0;
+        backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      }
+      .flip-inner > .region-box { transform: rotateY(180deg); padding: 18px 12px 14px; }
+      .region-bars { min-height: 240px; }
+      .region-bars .rr { grid-template-columns: 34px 1fr 40px; column-gap: 6px; padding: 0 4px; }
+      .region-bars .nm { font-size: 11px; }
     }
 
     /* 그래프 위 내용은 항상 위로 */

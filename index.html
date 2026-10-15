@@ -22,6 +22,8 @@
     <p class="lead reveal">최상의 신선함을 담았습니다.</p>
 
     <div class="reveal price-row">
+     <div class="flip" id="flip">
+      <div class="flip-inner">
       <div class="price-box" id="priceBox" style="display:none">
         <svg class="trend" id="trend" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div class="price-box-label"><span class="dot"></span> 오늘의 가격</div>
@@ -43,9 +45,11 @@
       </div>
     
       <div class="region-box" id="regionBox">
-        <div class="region-box-label">전국 도매가 비교 (4kg 기준)</div>
+        <div class="region-box-label" id="regionTitle">전국 도매가 비교 (4kg 기준)</div>
         <div class="region-bars" id="regionBars"></div>
       </div>
+      </div>
+     </div>
     </div>
 
     <div class="hero-shot reveal">
