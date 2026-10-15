@@ -47,13 +47,12 @@ def build_region_url(mrkt_cd: str, date_str: str) -> str:
     )
 
 
-def fetch_region_stats(codes, date_str, delay=0.15, max_outliers=5):
-    """지역(1~2개 시장 합산) 4kg 부추의 범위 통계.
-    - maxPrice4kg / minPrice4kg : 10박스 이상 거래의 최고·최저가 (상자 상·하단)
-    - outHigh / outLow          : 10박스 미만 거래 중 범위를 벗어난 가격 (이상치)
-    - boxes                     : 4kg 부추 총 거래 박스수 (10박스 미만 포함)
+def fetch_region_stats(codes, date_str, delay=0.15):
+    """지역(1~2개 시장 합산) 4kg 부추, 10박스 이상 거래만 사용.
+    - maxPrice4kg / minPrice4kg : 최고·최저가
+    - kg                        : 해당 거래들의 총 물량(kg) = 박스수 x 4
     """
-    big, small, boxes = [], [], 0
+    prices, boxes = [], 0
     for code in codes:
         try:
             req = urllib.request.Request(
@@ -71,28 +70,20 @@ def fetch_region_stats(codes, date_str, delay=0.15, max_outliers=5):
                 prc = float(x.get("scsbd_prc") or 0)
             except ValueError:
                 continue
-            if uq != 4 or qty <= 0:
+            if uq != 4 or qty < 10 or prc <= 0 or prc > ABS_CAP:
                 continue
+            prices.append(prc)
             boxes += qty
-            if prc <= 0 or prc > ABS_CAP:
-                continue
-            (big if qty >= 10 else small).append(prc)
         time.sleep(delay)
 
-    hi = pick_max_price(big)
+    hi = pick_max_price(prices)
     if hi is None:
         return None
-    kept = [p for p in big if 0 < p <= hi]
-    lo = min(kept)
-
-    out_high = sorted({int(p) for p in small if p > hi}, reverse=True)[:max_outliers]
-    out_low  = sorted({int(p) for p in small if p < lo})[:max_outliers]
+    lo = min(p for p in prices if p <= hi)
     return {
         "maxPrice4kg": int(hi),
         "minPrice4kg": int(lo),
-        "outHigh": sorted(out_high),
-        "outLow": out_low,
-        "boxes": int(boxes),
+        "kg": int(boxes * 4),
     }
 
 
@@ -351,9 +342,9 @@ def main():
     today_str = today.isoformat()
     for name, codes in REGION_MARKETS.items():
         # 오늘 값이 이미 있고 9시가 지났으면 재조회 안 함 (호출 절약)
-        # 단, 구버전 데이터(최저가 없음)는 다시 조회
+        # 단, 구버전 데이터(kg 없음)는 다시 조회
         cur = regions.get(name, {})
-        if cur.get("date") == today_str and hour_kst >= 9 and "minPrice4kg" in cur:
+        if cur.get("date") == today_str and hour_kst >= 9 and "kg" in cur:
             continue
         stats = fetch_region_stats(codes, today_str)
         if stats is not None:
