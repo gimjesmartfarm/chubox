@@ -176,7 +176,16 @@
         max-width: none; margin: 0;
         backface-visibility: hidden; -webkit-backface-visibility: hidden;
       }
+      .flip-inner > .price-box  { transform: rotateY(0deg); }   /* Safari: 앞면에도 transform 필요 */
       .flip-inner > .region-box { transform: rotateY(180deg); padding: 18px 12px 14px; }
+
+      /* Safari는 내부 레이어(position+z-index)에 backface-visibility가 안 먹어서
+         뒷면이 거울처럼 비침 → 회전이 절반(90°) 지나는 순간 직접 숨김/표시 전환 */
+      .flip-inner > .price-box,
+      .flip-inner > .region-box { transition: visibility 0s linear .35s; }
+      .flip-inner > .region-box { visibility: hidden; }
+      .flip.flipped .flip-inner > .price-box  { visibility: hidden; }
+      .flip.flipped .flip-inner > .region-box { visibility: visible; }
       .region-bars { min-height: 240px; }
       .region-bars .rr { grid-template-columns: 34px 1fr 40px; column-gap: 6px; padding: 0 4px; }
       .region-bars .nm { font-size: 11px; }
