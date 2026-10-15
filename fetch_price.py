@@ -47,8 +47,13 @@ def build_region_url(mrkt_cd: str, date_str: str) -> str:
     )
 
 
-def fetch_region_max(codes, date_str, delay=0.15):
-    prices = []
+def fetch_region_stats(codes, date_str, delay=0.15, max_outliers=5):
+    """지역(1~2개 시장 합산) 4kg 부추의 범위 통계.
+    - maxPrice4kg / minPrice4kg : 10박스 이상 거래의 최고·최저가 (상자 상·하단)
+    - outHigh / outLow          : 10박스 미만 거래 중 범위를 벗어난 가격 (이상치)
+    - boxes                     : 4kg 부추 총 거래 박스수 (10박스 미만 포함)
+    """
+    big, small, boxes = [], [], 0
     for code in codes:
         try:
             req = urllib.request.Request(
@@ -66,12 +71,29 @@ def fetch_region_max(codes, date_str, delay=0.15):
                 prc = float(x.get("scsbd_prc") or 0)
             except ValueError:
                 continue
-            if uq != 4 or qty < 10 or prc <= 0:
+            if uq != 4 or qty <= 0:
                 continue
-            prices.append(prc)
+            boxes += qty
+            if prc <= 0 or prc > ABS_CAP:
+                continue
+            (big if qty >= 10 else small).append(prc)
         time.sleep(delay)
-    best = pick_max_price(prices)
-    return int(best) if best is not None else None
+
+    hi = pick_max_price(big)
+    if hi is None:
+        return None
+    kept = [p for p in big if 0 < p <= hi]
+    lo = min(kept)
+
+    out_high = sorted({int(p) for p in small if p > hi}, reverse=True)[:max_outliers]
+    out_low  = sorted({int(p) for p in small if p < lo})[:max_outliers]
+    return {
+        "maxPrice4kg": int(hi),
+        "minPrice4kg": int(lo),
+        "outHigh": sorted(out_high),
+        "outLow": out_low,
+        "boxes": int(boxes),
+    }
 
 
 def build_url(date_str: str) -> str:
@@ -329,12 +351,14 @@ def main():
     today_str = today.isoformat()
     for name, codes in REGION_MARKETS.items():
         # 오늘 값이 이미 있고 9시가 지났으면 재조회 안 함 (호출 절약)
-        if regions.get(name, {}).get("date") == today_str and hour_kst >= 9:
+        # 단, 구버전 데이터(최저가 없음)는 다시 조회
+        cur = regions.get(name, {})
+        if cur.get("date") == today_str and hour_kst >= 9 and "minPrice4kg" in cur:
             continue
-        price = fetch_region_max(codes, today_str)
-        if price is not None:
-            regions[name] = {"date": today_str, "maxPrice4kg": price}
-            print(f"[지역 {name}] {price}원")
+        stats = fetch_region_stats(codes, today_str)
+        if stats is not None:
+            regions[name] = {"date": today_str, **stats}
+            print(f"[지역 {name}] {stats}")
         # 오늘 데이터 없으면(휴무) 이전 값(다른 날짜 포함) 그대로 유지
 
     # 7일 넘게 갱신 안 된 지역은 제거 (너무 오래된 값 표시 방지)
