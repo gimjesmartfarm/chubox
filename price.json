@@ -7,7 +7,7 @@
   "itemName": "부추",
   "variety": "일반부추",
   "auctionAt": "2026-11-02 06:00:49",
-  "updatedAt": "2026-11-02T12:30:44+09:00",
+  "updatedAt": "2026-11-03T06:00:46+09:00",
   "history": [
     {
       "date": "2026-10-26",
@@ -40,28 +40,28 @@
   ],
   "regions": {
     "서울": {
-      "date": "2026-11-02",
-      "maxPrice4kg": 27000,
-      "minPrice4kg": 26500,
-      "kg": 160
+      "date": "2026-11-03",
+      "maxPrice4kg": 23500,
+      "minPrice4kg": 23500,
+      "kg": 92
     },
     "대전": {
-      "date": "2026-11-02",
-      "maxPrice4kg": 7600,
-      "minPrice4kg": 6900,
-      "kg": 84
+      "date": "2026-11-03",
+      "maxPrice4kg": 7000,
+      "minPrice4kg": 7000,
+      "kg": 100
     },
     "광주": {
-      "date": "2026-11-02",
-      "maxPrice4kg": 12300,
-      "minPrice4kg": 7200,
-      "kg": 796
+      "date": "2026-11-03",
+      "maxPrice4kg": 12200,
+      "minPrice4kg": 7000,
+      "kg": 2148
     },
     "전주": {
-      "date": "2026-11-02",
-      "maxPrice4kg": 18000,
-      "minPrice4kg": 6000,
-      "kg": 1108
+      "date": "2026-11-03",
+      "maxPrice4kg": 16000,
+      "minPrice4kg": 5000,
+      "kg": 1156
     },
     "익산": {
       "date": "2026-11-02",
