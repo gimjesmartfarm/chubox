@@ -1,18 +1,14 @@
 {
-  "date": "2026-11-04",
-  "maxPrice": 12500,
+  "date": "2026-11-05",
+  "maxPrice": 10000,
   "unitQty": 4,
   "unit": "kg",
   "marketName": "익산",
   "itemName": "부추",
   "variety": "일반부추",
-  "auctionAt": "2026-11-04 05:21:26",
-  "updatedAt": "2026-11-05T12:30:21+09:00",
+  "auctionAt": "2026-11-05 05:39:59",
+  "updatedAt": "2026-11-06T06:00:22+09:00",
   "history": [
-    {
-      "date": "2026-10-28",
-      "maxPrice": 15000
-    },
     {
       "date": "2026-10-29",
       "maxPrice": 10000
@@ -36,32 +32,36 @@
     {
       "date": "2026-11-04",
       "maxPrice": 12500
+    },
+    {
+      "date": "2026-11-05",
+      "maxPrice": 10000
     }
   ],
   "regions": {
     "서울": {
-      "date": "2026-11-04",
-      "maxPrice4kg": 23500,
-      "minPrice4kg": 17500,
-      "kg": 184
+      "date": "2026-11-06",
+      "maxPrice4kg": 37500,
+      "minPrice4kg": 37500,
+      "kg": 52
     },
     "대전": {
-      "date": "2026-11-04",
-      "maxPrice4kg": 6100,
-      "minPrice4kg": 5600,
-      "kg": 92
+      "date": "2026-11-06",
+      "maxPrice4kg": 6600,
+      "minPrice4kg": 6600,
+      "kg": 52
     },
     "광주": {
-      "date": "2026-11-05",
-      "maxPrice4kg": 13200,
-      "minPrice4kg": 6400,
-      "kg": 260
+      "date": "2026-11-06",
+      "maxPrice4kg": 14000,
+      "minPrice4kg": 6600,
+      "kg": 676
     },
     "전주": {
-      "date": "2026-11-05",
-      "maxPrice4kg": 16000,
-      "minPrice4kg": 12000,
-      "kg": 336
+      "date": "2026-11-06",
+      "maxPrice4kg": 15600,
+      "minPrice4kg": 5000,
+      "kg": 1144
     },
     "익산": {
       "date": "2026-11-04",
@@ -76,18 +76,18 @@
       "kg": 220
     },
     "인천": {
-      "date": "2026-11-02",
+      "date": "2026-11-06",
       "maxPrice4kg": 15000,
       "minPrice4kg": 15000,
-      "kg": 44
+      "kg": 160
     },
     "대구": {
-      "date": "2026-10-30",
-      "maxPrice4kg": 5000,
-      "minPrice4kg": 5000,
-      "kg": 364
+      "date": "2026-11-06",
+      "maxPrice4kg": 9000,
+      "minPrice4kg": 9000,
+      "kg": 800
     }
   },
-  "briefing": "최근 내림세를 보이던 부추 시세가 다시 오름세로 돌아서며 반등하는 흐름을 보이고 있어요. 당분간 시세 변동이 이어질 수 있으니 흐름을 살피며 알뜰하게 구매해 보세요.",
-  "briefingDate": "2026-11-04"
+  "briefing": "최근 부추 시세는 한동안 높았던 가격이 점차 떨어지며 전반적으로 내림세를 나타내고 있어요. 중간에 소폭 변동은 있었으나 전체적으로 구매 부담이 줄어드는 흐름이니 장보실 때 참고해 보세요.",
+  "briefingDate": "2026-11-05"
 }
