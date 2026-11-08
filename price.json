@@ -3,11 +3,11 @@
   "maxPrice": 9000,
   "unitQty": 4,
   "unit": "kg",
-  "marketName": "-",
+  "marketName": "익산",
   "itemName": "부추",
   "variety": "일반부추",
   "auctionAt": "2026-11-07 05:52:09",
-  "updatedAt": "2026-11-08T12:30:34+09:00",
+  "updatedAt": "2026-11-09T06:00:34+09:00",
   "history": [
     {
       "date": "2026-10-31",
@@ -40,10 +40,10 @@
   ],
   "regions": {
     "서울": {
-      "date": "2026-11-06",
-      "maxPrice4kg": 37500,
-      "minPrice4kg": 37500,
-      "kg": 52
+      "date": "2026-11-09",
+      "maxPrice4kg": 36000,
+      "minPrice4kg": 29000,
+      "kg": 144
     },
     "대전": {
       "date": "2026-11-06",
@@ -52,16 +52,16 @@
       "kg": 52
     },
     "광주": {
-      "date": "2026-11-07",
-      "maxPrice4kg": 12500,
-      "minPrice4kg": 6900,
-      "kg": 1424
+      "date": "2026-11-09",
+      "maxPrice4kg": 14000,
+      "minPrice4kg": 6600,
+      "kg": 1892
     },
     "전주": {
-      "date": "2026-11-07",
-      "maxPrice4kg": 15500,
-      "minPrice4kg": 7200,
-      "kg": 1164
+      "date": "2026-11-09",
+      "maxPrice4kg": 13000,
+      "minPrice4kg": 5000,
+      "kg": 916
     },
     "익산": {
       "date": "2026-11-07",
@@ -82,10 +82,10 @@
       "kg": 160
     },
     "대구": {
-      "date": "2026-11-06",
-      "maxPrice4kg": 9000,
-      "minPrice4kg": 9000,
-      "kg": 800
+      "date": "2026-11-09",
+      "maxPrice4kg": 9500,
+      "minPrice4kg": 9500,
+      "kg": 104
     }
   },
   "briefing": "최근 부추 도매 시세는 지속해서 가격이 낮아지는 내림세를 보이고 있어요. 이전보다 구매 부담이 줄어들어 알뜰하게 장을 보시기 좋은 흐름이에요.",
