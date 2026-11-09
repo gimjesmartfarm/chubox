@@ -1,18 +1,14 @@
 {
-  "date": "2026-11-09",
-  "maxPrice": 12000,
+  "date": "2026-11-10",
+  "maxPrice": 11500,
   "unitQty": 4,
   "unit": "kg",
   "marketName": "익산",
   "itemName": "부추",
   "variety": "일반부추",
-  "auctionAt": "2026-11-09 06:24:41",
-  "updatedAt": "2026-11-09T12:30:50+09:00",
+  "auctionAt": "2026-11-10 05:17:55",
+  "updatedAt": "2026-11-10T06:00:52+09:00",
   "history": [
-    {
-      "date": "2026-11-02",
-      "maxPrice": 11000
-    },
     {
       "date": "2026-11-03",
       "maxPrice": 10000
@@ -36,26 +32,30 @@
     {
       "date": "2026-11-09",
       "maxPrice": 12000
+    },
+    {
+      "date": "2026-11-10",
+      "maxPrice": 11500
     }
   ],
   "regions": {
     "서울": {
-      "date": "2026-11-09",
-      "maxPrice4kg": 36000,
-      "minPrice4kg": 29000,
-      "kg": 144
+      "date": "2026-11-10",
+      "maxPrice4kg": 40000,
+      "minPrice4kg": 40000,
+      "kg": 48
     },
     "대전": {
-      "date": "2026-11-06",
-      "maxPrice4kg": 6600,
-      "minPrice4kg": 6600,
-      "kg": 52
+      "date": "2026-11-10",
+      "maxPrice4kg": 6500,
+      "minPrice4kg": 6500,
+      "kg": 40
     },
     "광주": {
-      "date": "2026-11-09",
-      "maxPrice4kg": 14000,
-      "minPrice4kg": 6600,
-      "kg": 2092
+      "date": "2026-11-10",
+      "maxPrice4kg": 14600,
+      "minPrice4kg": 5500,
+      "kg": 1356
     },
     "전주": {
       "date": "2026-11-09",
@@ -64,10 +64,10 @@
       "kg": 916
     },
     "익산": {
-      "date": "2026-11-09",
-      "maxPrice4kg": 12000,
-      "minPrice4kg": 586,
-      "kg": 912
+      "date": "2026-11-10",
+      "maxPrice4kg": 11500,
+      "minPrice4kg": 5000,
+      "kg": 368
     },
     "부산": {
       "date": "2026-11-09",
@@ -82,12 +82,12 @@
       "kg": 160
     },
     "대구": {
-      "date": "2026-11-09",
-      "maxPrice4kg": 9500,
-      "minPrice4kg": 9500,
-      "kg": 104
+      "date": "2026-11-10",
+      "maxPrice4kg": 3500,
+      "minPrice4kg": 3500,
+      "kg": 172
     }
   },
-  "briefing": "한동안 내림세를 보이던 부추 시세가 최근 다시 오름세로 돌아섰어요. 당분간 상승 흐름이 이어질 수 있으니 구매 계획에 참고하시면 좋겠어요.",
-  "briefingDate": "2026-11-09"
+  "briefing": "최근 부추 도매 시세는 하락세를 지나 다시 오름세를 띠고 있어요. 다소 높은 시세 흐름이 이어지고 있으니 구매하실 때 참고해 주세요.",
+  "briefingDate": "2026-11-10"
 }
