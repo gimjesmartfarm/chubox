@@ -1,13 +1,13 @@
 {
   "date": "2026-11-16",
-  "maxPrice": 11500,
+  "maxPrice": 12500,
   "unitQty": 4,
   "unit": "kg",
   "marketName": "익산",
   "itemName": "부추",
   "variety": "일반부추",
-  "auctionAt": "2026-11-16 06:18:34",
-  "updatedAt": "2026-11-16T07:40:56+09:00",
+  "auctionAt": "2026-11-16 06:53:27",
+  "updatedAt": "2026-11-16T08:00:59+09:00",
   "history": [
     {
       "date": "2026-11-09",
@@ -35,7 +35,7 @@
     },
     {
       "date": "2026-11-16",
-      "maxPrice": 11500
+      "maxPrice": 12500
     }
   ],
   "regions": {
@@ -53,9 +53,9 @@
     },
     "광주": {
       "date": "2026-11-16",
-      "maxPrice4kg": 12000,
+      "maxPrice4kg": 14000,
       "minPrice4kg": 4600,
-      "kg": 1428
+      "kg": 1920
     },
     "전주": {
       "date": "2026-11-16",
@@ -65,9 +65,9 @@
     },
     "익산": {
       "date": "2026-11-16",
-      "maxPrice4kg": 11500,
+      "maxPrice4kg": 12500,
       "minPrice4kg": 5000,
-      "kg": 752
+      "kg": 932
     },
     "부산": {
       "date": "2026-11-16",
